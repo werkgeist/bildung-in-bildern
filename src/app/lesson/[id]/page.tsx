@@ -7,6 +7,13 @@ const lessons: Record<string, Lesson> = {
   [schmetterlingsLesson.id]: schmetterlingsLesson,
 };
 
+// Required for `output: "export"` (static export)
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return Object.keys(lessons).map((id) => ({ id }));
+}
+
 export default async function LessonPage({
   params,
 }: {
