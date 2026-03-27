@@ -32,7 +32,7 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
       <div className="flex flex-col items-center py-8">
         <h1 className="text-3xl font-bold text-amber-700 mb-2">{lesson.title}</h1>
         <p className="text-gray-500 mb-8">{lesson.description}</p>
-        <SequenceViewer sequence={lesson.sequence} onComplete={handleSequenceComplete} />
+        <SequenceViewer sequence={lesson.sequence} onComplete={handleSequenceComplete} lessonId={lesson.id} />
       </div>
     );
   }
@@ -41,7 +41,7 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
     return (
       <div className="flex flex-col items-center py-8">
         <h1 className="text-3xl font-bold text-amber-700 mb-8">Quiz</h1>
-        <Quiz questions={lesson.questions} onComplete={handleQuizComplete} />
+        <Quiz questions={lesson.questions} onComplete={handleQuizComplete} lessonId={lesson.id} />
       </div>
     );
   }

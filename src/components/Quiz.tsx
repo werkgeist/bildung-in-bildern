@@ -8,9 +8,10 @@ import { logAnswer } from "@/lib/logging";
 interface QuizProps {
   questions: QuizQuestion[];
   onComplete: (score: number) => void;
+  lessonId?: string;
 }
 
-export default function Quiz({ questions, onComplete }: QuizProps) {
+export default function Quiz({ questions, onComplete, lessonId }: QuizProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -42,6 +43,8 @@ export default function Quiz({ questions, onComplete }: QuizProps) {
       selectedOption: optionId,
       correct,
       responseTimeMs,
+      lessonId,
+      stepIndex: currentIndex,
     });
 
     setTimeout(() => {

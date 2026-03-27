@@ -1,17 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import type { LessonImage } from "@/types/lesson";
+import { trackEvent } from "@/lib/analytics";
 
 interface SequenceViewerProps {
   sequence: LessonImage[];
   onComplete: () => void;
+  lessonId?: string;
 }
 
-export default function SequenceViewer({ sequence, onComplete }: SequenceViewerProps) {
+export default function SequenceViewer({ sequence, onComplete, lessonId }: SequenceViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!lessonId) return;
+    void trackEvent({
+      lesson_id: lessonId,
+      step_type: "sequence_view",
+      step_index: currentIndex,
+    });
+  }, [currentIndex, lessonId]);
 
   const current = sequence[currentIndex];
   const isFirst = currentIndex === 0;
