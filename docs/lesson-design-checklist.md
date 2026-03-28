@@ -1,98 +1,93 @@
-# Lesson Design Checklist — Bildung in Bildern
+# Lektions-Design-Checkliste
 
-Basierend auf Mayer's Multimedia Learning Principles, Dual Coding Theory, und
-IDD/ASD Visual Supports Forschung. Jede Lektion muss diese Checkliste erfüllen.
+Basiert auf Mayer (2002), Höffler & Leutner (2007), Cook (2006), Paivio (1991).
+Referenz: `memory/recherche-visuelles-lernen-2026-03-27.md`
 
-## 1. Thema & Zielgruppe
+## Vor der Lektion
 
+### Thema & Lernziel
 - [ ] **Ein klares Lernziel** pro Lektion (z.B. "Lebenszyklus des Schmetterlings verstehen")
-- [ ] **Abstraktionslevel** passt zur Zielgruppe (Kyrill: konkret, visuell, ohne Textlastigkeit)
-- [ ] **Alltagsrelevanz** oder **Faszination** vorhanden (Warum sollte jemand das wissen wollen?)
+- [ ] Zielgruppe beachten: Kyrill-Level (visuell-räumlich stark, Sprache ~8-10J, max 6-7 Optionen)
+- [ ] Abstrakt → Schema/Flat; Alltagstransfer → realistischer Stil
 
-## 2. Bildsequenz (4–6 Frames)
+### Sequenz-Planung
+- [ ] **4-6 Frames** (Segmenting-Prinzip — nicht zu viele, nicht zu wenige)
+- [ ] Jeder Frame = **ein Konzept/Schritt** (Coherence — kein Deko-Overload)
+- [ ] Klare **zeitliche/logische Reihenfolge** (was kommt zuerst → zuletzt)
+- [ ] Übergänge zwischen Frames sind visuell erkennbar (z.B. gleicher Ort, Objekt verändert sich)
 
-### Coherence (kein Ballast)
-- [ ] Jedes Bild zeigt **genau einen Schritt/Zustand** — keine Doppelbelegung
-- [ ] Keine dekorativen Elemente, die vom Inhalt ablenken
-- [ ] Hintergrund einheitlich und ruhig (vorzugsweise weiß/neutral)
+## Bild-Erstellung
 
-### Signaling (visuelle Hinweise)
-- [ ] Nummerierung der Schritte sichtbar (1, 2, 3, 4...)
-- [ ] Pfeile/Übergänge zwischen Schritten wo nötig
-- [ ] Farbliche Konsistenz: gleiche Farben für gleiche Objekte über alle Frames
-- [ ] Wichtige Elemente hervorgehoben (Größe, Farbe, Position)
-
-### Contiguity (Text nah am Bild)
-- [ ] Beschreibung **direkt unter/über** dem zugehörigen Bild (nicht auf separater Seite)
-- [ ] Text kurz: max. 1 Satz pro Frame, einfache Sprache
-
-### Segmenting (schrittweise)
-- [ ] Nutzer steuert das Tempo (Swipe/Tap für nächsten Schritt)
-- [ ] Kein Auto-Advance — Kyrill entscheidet wann er weitergeht
-- [ ] Rückwärts-Navigation möglich
-
-## 3. Bildstil
-
-- [ ] **Flat Vector** für abstrakte Themen (Biologie, Geografie, Mathe, Physik)
-- [ ] **Fotos/Realismus** nur wenn Objekterkennung im Alltag das Ziel ist
-- [ ] Weiche, warme Farben — keine grellen Kontraste
-- [ ] Rundliche Formen bevorzugen (nicht bedrohlich)
-- [ ] Konsistenter Stil über alle Frames einer Lektion
-- [ ] Keine Text-im-Bild (Beschriftungen separat im UI)
+### Stil-Konsistenz (über alle Frames einer Lektion)
+- [ ] **Gleicher Bildstil** durchgängig (Flat Vector / Schema / Foto — nicht mischen!)
+- [ ] **Gleiche Farbpalette** (max 5-6 Hauptfarben)
+- [ ] **Gleiche Perspektive/Kamerawinkel** wenn möglich
+- [ ] **Gleicher Hintergrund** oder konsistente Hintergrund-Progression
+- [ ] Gleiche Figuren/Objekte sind **wiedererkennbar** (Form, Farbe, Größe)
 
 ### Prompt-Template (FLUX.2)
 ```
-[Beschreibung des Schritts]. Clean flat vector illustration, warm colorful style,
-soft rounded shapes, solid white background, educational diagram style,
-no text, centered composition, [spezifische Details].
+[Stil]: Clean flat vector illustration, soft warm colors, solid white background,
+        simple rounded shapes, no outlines, educational style
+[Szene]: [Was passiert in diesem Frame]
+[Fokus]: Centered composition, single focal point, no distracting details
+[Konsistenz]: Same art style as previous frames, matching color palette
 ```
 
-### Konsistenz-Techniken
-- Gleicher Seed + ähnlicher Prompt-Aufbau für alle Frames
-- Bei Bedarf: ControlNet/IP-Adapter für strukturelle Konsistenz
-- Vor Generierung: Skizze/Storyboard der Sequenz erstellen
+### Signaling (visuelle Hinweise)
+- [ ] **Nummerierung** der Frames sichtbar (1, 2, 3, 4...)
+- [ ] Optional: **Pfeile** zwischen Frames für Richtung/Fluss
+- [ ] **Hervorhebungen** für das Wichtigste im Frame (Größe, Farbe, Position)
+- [ ] Kein Text IN den Bildern (Text gehört ins UI, nicht ins Bild)
 
-## 4. Quiz-Fragen
+## Quiz-Design
 
-- [ ] **Keine Ja/Nein-Fragen** (Acquiescence Bias bei IDD!)
-- [ ] 3 Bild-Optionen pro Frage (nicht Text-Optionen)
-- [ ] Fragen testen **Verständnis der Reihenfolge/Zusammenhänge**, nicht Faktenwissen
-- [ ] Mindestens 2 Fragen pro Lektion
-- [ ] Falsche Optionen sind **plausibel** (nicht offensichtlich falsch)
-- [ ] Große Hit-Targets (min. 80px Höhe)
+### Fragen
+- [ ] **2-3 Fragen** pro Lektion (nicht überfordern)
+- [ ] Fragen testen **Verständnis**, nicht Auswendiglernen
+- [ ] "Was kommt nach X?" (Sequenz-Verständnis)
+- [ ] "Welches Bild zeigt Y?" (Konzept-Erkennung)
 
-## 5. Barrierefreiheit
+### Antwort-Optionen
+- [ ] **3 Bild-Optionen** pro Frage (nicht zu viele — max 6-7 für Kyrill)
+- [ ] Optionen sind **visuell unterscheidbar** (nicht zu ähnlich)
+- [ ] **KEINE Ja/Nein-Fragen** (Acquiescence Bias bei IDD!)
+- [ ] Distraktoren sind plausibel aber klar falsch
+- [ ] Große Touch-Targets (min 80px)
 
-- [ ] Kein Zeitdruck — keine Timer, keine verschwindenden Elemente
-- [ ] Max. 6–7 Elemente pro Screen
-- [ ] Touch-Targets ≥ 48px
-- [ ] Keine lauten/überraschenden Geräusche oder Animationen
-- [ ] Ohne Text verständlich (Bilder allein erzählen die Geschichte)
+### Feedback
+- [ ] **Sofortiges visuelles Feedback** (richtig = grün/Häkchen, falsch = nochmal versuchen)
+- [ ] Kein bestrafendes Feedback (kein Rot/X/Buzzer bei Fehler)
+- [ ] Bei Fehler: richtige Antwort zeigen + kurz erklären (visuell)
 
-## 6. Qualitätskontrolle
+## Qualitäts-Check (vor Deploy)
 
-- [ ] **Mental durchgehen aus Kyrills Perspektive**: Versteht ER das? Ergibt die Sequenz für IHN Sinn?
-- [ ] **Sequenz-Test**: Bilder in zufälliger Reihenfolge zeigen — kann man die richtige Reihenfolge erkennen?
-- [ ] **Ablenkungstest**: Gibt es Elemente die vom Kerninhalt ablenken? → Entfernen
-- [ ] **Quiz-Test**: Sind die Fragen ohne Vorwissen der Lektion lösbar? → Frage zu leicht. Sind sie unlösbar? → Frage zu schwer
+- [ ] Alle Bilder laden korrekt
+- [ ] Sequenz ergibt auch OHNE Text Sinn (rein visuell verständlich?)
+- [ ] Quiz-Antworten sind eindeutig richtig/falsch
+- [ ] Response-Time-Logging funktioniert
+- [ ] Auf Mobilgerät getestet (Touch, Swipe)
+- [ ] `pnpm test` grün
+- [ ] `pnpm build` grün
 
-## Lektions-Ideen (Backlog)
+## Themen-Ideen (priorisiert)
 
 ### Naturwissenschaften
-- [x] Schmetterling Lebenszyklus (Prototyp)
+- [x] Schmetterlings-Lebenszyklus ✅
 - [ ] Wasserzyklus (Verdunstung → Wolke → Regen → Fluss → Meer)
-- [ ] Pflanze wächst (Samen → Keimling → Pflanze → Blüte → Frucht)
-- [ ] Tag und Nacht (Erdrotation, vereinfacht)
-
-### Technik
-- [ ] Computer-Hardware (Tastatur → Computer → Monitor → Drucker)
-- [ ] Wie funktioniert ein Kühlschrank? (vereinfacht)
-- [ ] Brief verschicken (Schreiben → Briefkasten → Sortierung → Zustellung)
+- [ ] Pflanzenwachstum (Samen → Keimling → Pflanze → Blüte → Frucht)
+- [ ] Frosch-Metamorphose (Ei → Kaulquappe → Frosch)
+- [ ] Tag und Nacht (Erde dreht sich)
 
 ### Geografie
 - [ ] Jahreszeiten (Frühling → Sommer → Herbst → Winter)
-- [ ] Vom Berg zum Meer (Quelle → Bach → Fluss → Meer)
+- [ ] Vulkan-Entstehung (Magma → Ausbruch → Lava → Erstarrung)
+
+### Technik/Alltag
+- [ ] Wie ein Computer funktioniert (Eingabe → Verarbeitung → Ausgabe)
+- [ ] Strom: Vom Kraftwerk zur Steckdose
+- [ ] Recycling-Kreislauf
 
 ### Mathe (visuell)
-- [ ] Brüche (Pizza teilen: 1/2, 1/4, 1/8)
-- [ ] Symmetrie (Beispiele aus der Natur)
+- [ ] Brüche verstehen (Pizza/Kuchen aufteilen)
+- [ ] Symmetrie (Schmetterlingsflügel, Schneeflocke)
