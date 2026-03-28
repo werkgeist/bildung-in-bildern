@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import LessonFlow from "@/components/LessonFlow";
 import { schmetterlingsLesson } from "@/data/schmetterling";
+import { wasserkreislaufLesson } from "@/data/wasserkreislauf";
 import type { Lesson } from "@/types/lesson";
 
 const lessons: Record<string, Lesson> = {
   [schmetterlingsLesson.id]: schmetterlingsLesson,
+  [wasserkreislaufLesson.id]: wasserkreislaufLesson,
 };
 
 // Required for `output: "export"` (static export)
