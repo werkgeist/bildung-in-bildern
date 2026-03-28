@@ -1,0 +1,169 @@
+{
+  "id": "wasserkreislauf-einfach",
+  "version": 2,
+  "locale": "de",
+  "title": "Der Wasserkreislauf",
+  "description": "Du siehst, wie Wasser immer wieder hoch in die Luft geht, Wolken macht, als Regen runterkommt und sich wieder sammelt.",
+  "subject": "nature",
+  "difficulty": 1,
+  "learningGoals": [
+    "Die vier Phasen des Wasserkreislaufs in der richtigen Reihenfolge zeigen können",
+    "Das Bild für Verdunstung und das Bild für Regen erkennen"
+  ],
+  "prerequisites": [
+    "Kennt: Sonne, Wasser, Wolke, Regen"
+  ],
+  "steps": [
+    {
+      "id": "wasserkreislauf-einfach-step-1",
+      "order": 1,
+      "label": "Verdunstung",
+      "alt": "Sonne scheint auf Meer, Wasser-Dampf steigt nach oben",
+      "concept": "Die Sonne wärmt Wasser, und Wasser geht als Dampf nach oben",
+      "conceptTags": ["verdunstung", "sonne", "dampf"],
+      "mustInclude": ["große gelbe Sonne oben", "blaue Wasserfläche unten", "helle Dampflinien über dem Wasser", "Pfeile nach oben"],
+      "mustAvoid": ["Wolken", "Regen", "Menschen", "Text"],
+      "shotType": "wide",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "large"
+    },
+    {
+      "id": "wasserkreislauf-einfach-step-2",
+      "order": 2,
+      "label": "Wolkenbildung",
+      "alt": "Wasserdampf oben wird zu einer großen Wolke",
+      "concept": "Der Dampf kühlt ab und wird zu Wolken",
+      "conceptTags": ["wolkenbildung", "kondensation", "wolke"],
+      "mustInclude": ["große weiße/graue Wolke am Himmel", "aufsteigender Dampf darunter", "Pfeile vom Dampf zur Wolke"],
+      "mustAvoid": ["Blitze", "Regen", "Schnee", "Text"],
+      "transitionType": "action-to-action",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "medium"
+    },
+    {
+      "id": "wasserkreislauf-einfach-step-3",
+      "order": 3,
+      "label": "Niederschlag",
+      "alt": "Große Wolke, viele Regentropfen fallen nach unten",
+      "concept": "Aus Wolken fällt Wasser nach unten als Regen",
+      "conceptTags": ["niederschlag", "regen", "tropfen"],
+      "mustInclude": ["große Wolke oben", "deutliche Regentropfen nach unten", "Pfeile nach unten", "Boden oder Wasserfläche unten"],
+      "mustAvoid": ["Menschen mit Regenschirmen", "Häuser", "Blitze", "Text"],
+      "transitionType": "action-to-action",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "large"
+    },
+    {
+      "id": "wasserkreislauf-einfach-step-4",
+      "order": 4,
+      "label": "Sammlung",
+      "alt": "Regenwasser sammelt sich in Bach und See",
+      "concept": "Das Wasser sammelt sich in Bächen, Flüssen und Seen",
+      "conceptTags": ["sammlung", "fluss", "see"],
+      "mustInclude": ["Bach oder Fluss", "See oder Meer als Sammelbecken", "Pfeile die Zusammenfließen zeigen"],
+      "mustAvoid": ["Sonne stark sichtbar", "Dampf", "Autos", "Text"],
+      "transitionType": "subject-to-subject",
+      "shotType": "wide",
+      "cameraAngle": "high",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "medium"
+    },
+    {
+      "id": "wasserkreislauf-einfach-step-5",
+      "order": 5,
+      "label": "Wieder von vorne",
+      "alt": "Gewässer mit Sonne, Kreislauf-Pfeil zeigt: es beginnt von vorne",
+      "concept": "Vom gesammelten Wasser verdunstet wieder Wasser — der Kreislauf beginnt neu",
+      "conceptTags": ["kreislauf", "wiederholung"],
+      "mustInclude": ["großes Gewässer", "Sonne", "Pfeile nach oben", "großer Kreislauf-Pfeil"],
+      "mustAvoid": ["Text", "Zahlen", "Diagramm-Legende"],
+      "transitionType": "scene-to-scene",
+      "shotType": "wide",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "additive",
+      "panelSize": "large"
+    }
+  ],
+  "questions": [
+    {
+      "id": "wasserkreislauf-einfach-q-1",
+      "type": "sequence",
+      "testsConcepts": ["verdunstung", "wolkenbildung", "niederschlag", "sammlung"],
+      "questionText": "Was ist die richtige Reihenfolge?",
+      "correctOrderStepRefs": [
+        "wasserkreislauf-einfach-step-1",
+        "wasserkreislauf-einfach-step-2",
+        "wasserkreislauf-einfach-step-3",
+        "wasserkreislauf-einfach-step-4"
+      ],
+      "options": [
+        {
+          "id": "wasserkreislauf-einfach-q-1-opt-1",
+          "label": "Verdunstung → Wolkenbildung → Niederschlag → Sammlung",
+          "isCorrect": true
+        },
+        {
+          "id": "wasserkreislauf-einfach-q-1-opt-2",
+          "label": "Wolkenbildung → Verdunstung → Niederschlag → Sammlung",
+          "isCorrect": false,
+          "distractorReason": "Vertauscht: Wolken kommen nicht vor der Verdunstung"
+        },
+        {
+          "id": "wasserkreislauf-einfach-q-1-opt-3",
+          "label": "Verdunstung → Niederschlag → Wolkenbildung → Sammlung",
+          "isCorrect": false,
+          "distractorReason": "Vertauscht: Regen kommt nicht vor der Wolke"
+        }
+      ],
+      "hint": "Erst geht Wasser hoch, dann kommt die Wolke, dann fällt Regen runter",
+      "difficulty": 1
+    },
+    {
+      "id": "wasserkreislauf-einfach-q-2",
+      "type": "mc-image",
+      "testsConcepts": ["niederschlag", "regen"],
+      "questionText": "Welches Bild zeigt Regen?",
+      "options": [
+        {
+          "id": "wasserkreislauf-einfach-q-2-opt-1",
+          "label": "Regen fällt aus einer Wolke",
+          "stepRef": "wasserkreislauf-einfach-step-3",
+          "isCorrect": true
+        },
+        {
+          "id": "wasserkreislauf-einfach-q-2-opt-2",
+          "label": "Dampf wird zur Wolke",
+          "stepRef": "wasserkreislauf-einfach-step-2",
+          "isCorrect": false,
+          "distractorReason": "Das ist Wolkenbildung, nicht Regen"
+        },
+        {
+          "id": "wasserkreislauf-einfach-q-2-opt-3",
+          "label": "Wasser sammelt sich im See",
+          "stepRef": "wasserkreislauf-einfach-step-4",
+          "isCorrect": false,
+          "distractorReason": "Das ist Sammlung, nicht Regen"
+        }
+      ],
+      "hint": "Suche Tropfen, die nach unten fallen",
+      "difficulty": 1
+    }
+  ],
+  "style": {
+    "artStyle": "flat-vector",
+    "background": "light-gradient-sky",
+    "colorPalette": ["#2D9CDB", "#56CCF2", "#F2C94C", "#FFFFFF", "#27AE60"],
+    "negativePrompt": "text, letters, photorealistic, humans, faces, buildings, complex diagrams, numbers",
+    "presetName": "kyrill-friendly",
+    "characterDNA": "Wasser als hellblaue runde Tropfen, Sonne als gelber Kreis mit kurzen Strahlen, Wolken als weiche weiße Formen — konsistent in allen Panels",
+    "styleBible": "Flat-vector, soft gradients, warm pastels on white/sky background; friendly and calm, no sharp edges or dark colors",
+    "spatialRules": {
+      "maintainLR": true
+    }
+  }
+}
