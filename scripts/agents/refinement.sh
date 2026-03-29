@@ -4,6 +4,7 @@
 #
 # Usage: bash scripts/agents/refinement.sh <issue_number> <item_id>
 
+# SECURITY: closed-trust-boundary — nur Repo-Maintainer können Issues erstellen.
 source "$(dirname "$0")/_common.sh"
 
 AGENT_NAME="Refinement"
@@ -44,7 +45,7 @@ log "[$AGENT_NAME] Rufe Claude auf..."
 # B2: set +e damit EXIT_CODE korrekt erfasst wird
 # M3: GH_TOKEN aus Claude-Env entfernen
 set +e
-RESPONSE=$(timeout 1800 env -u GH_TOKEN claude --print "$CONTEXT" 2>/dev/null)
+RESPONSE=$(timeout 1800 env -u GH_TOKEN claude --permission-mode bypassPermissions --print "$CONTEXT" 2>/dev/null)
 set -e
 
 DECISION=$(echo "$RESPONSE" | grep '^DECISION:' | cut -d' ' -f2- | tr -d '[:space:]')
