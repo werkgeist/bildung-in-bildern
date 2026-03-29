@@ -37,9 +37,11 @@ vi.mock("next/link", () => ({
     href,
     children,
     className,
+    "aria-label": ariaLabel,
   }: {
     href: string;
     children: React.ReactNode;
     className?: string;
-  }) => React.createElement("a", { href, className }, children),
+    "aria-label"?: string;
+  }) => React.createElement("a", { href, className, "aria-label": ariaLabel }, children),
 }));

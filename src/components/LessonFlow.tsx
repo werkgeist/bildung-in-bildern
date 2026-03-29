@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import type { Lesson } from "@/types/lesson";
 import SequenceViewer from "./SequenceViewer";
 import Quiz from "./Quiz";
 import { markComplete } from "@/hooks/useProgress";
+import { allLessons } from "@/data/lessons";
 
 interface LessonFlowProps {
   lesson: Lesson;
@@ -62,23 +64,68 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
   const total = lesson.questions.length;
   const allCorrect = finalScore === total;
 
+  const currentIndex = allLessons.findIndex((l) => l.id === lesson.id);
+  const nextLesson = currentIndex >= 0 && currentIndex < allLessons.length - 1
+    ? allLessons[currentIndex + 1]
+    : null;
+
   return (
-    <div className="flex flex-col items-center py-16 px-4 text-center">
-      <div className="text-7xl mb-6" aria-hidden>
+    <div className="flex flex-col items-center py-12 px-4 text-center gap-6">
+      <div className="text-7xl" aria-hidden>
         {allCorrect ? "🦋" : "⭐"}
       </div>
-      <h1 className="text-3xl font-bold text-amber-700 mb-2">
-        {allCorrect ? "Super gemacht!" : "Gut gemacht!"}
-      </h1>
-      <p className="text-xl text-gray-600 mb-8">
-        {finalScore} von {total} richtig
-      </p>
-      <button
-        onClick={handleRestart}
-        className="px-8 py-4 bg-amber-500 text-white text-xl font-semibold rounded-2xl active:bg-amber-600 transition-colors min-h-[80px]"
-      >
-        Nochmal lernen
-      </button>
+      <div>
+        <h1 className="text-3xl font-bold text-amber-700 mb-1">
+          {allCorrect ? "Super gemacht!" : "Gut gemacht!"}
+        </h1>
+        <p className="text-xl text-gray-600">
+          {finalScore} von {total} richtig
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-4 w-full max-w-sm">
+        {/* Nochmal */}
+        <button
+          onClick={handleRestart}
+          aria-label="Lektion nochmal lernen"
+          className="flex items-center justify-center gap-3 w-full min-h-[80px] px-6 py-4 bg-amber-100 text-amber-800 text-xl font-semibold rounded-2xl active:bg-amber-200 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400"
+        >
+          <span aria-hidden className="text-2xl">↺</span>
+          Nochmal
+        </button>
+
+        {/* Startseite */}
+        <Link
+          href="/"
+          aria-label="Zurück zur Startseite"
+          className="flex items-center justify-center gap-3 w-full min-h-[80px] px-6 py-4 bg-gray-100 text-gray-700 text-xl font-semibold rounded-2xl active:bg-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gray-400"
+        >
+          <span aria-hidden className="text-2xl">🏠</span>
+          Startseite
+        </Link>
+
+        {/* Nächste Lektion */}
+        {nextLesson && (
+          <Link
+            href={`/lesson/${nextLesson.id}`}
+            aria-label={`Nächste Lektion: ${nextLesson.title}`}
+            className="flex items-center gap-4 w-full min-h-[80px] px-6 py-4 bg-green-100 text-green-800 text-xl font-semibold rounded-2xl active:bg-green-200 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-green-400"
+          >
+            <Image
+              src={nextLesson.sequence[0].src}
+              alt={nextLesson.sequence[0].alt}
+              width={64}
+              height={64}
+              className="rounded-xl object-cover shrink-0"
+            />
+            <span className="flex-1 text-left leading-tight">
+              <span className="block text-sm font-normal text-green-600 mb-0.5">Nächste Lektion</span>
+              {nextLesson.title}
+            </span>
+            <span aria-hidden className="text-2xl">→</span>
+          </Link>
+        )}
+      </div>
     </div>
   );
 }

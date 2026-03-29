@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import LessonFlow from "@/components/LessonFlow";
 import { schmetterlingsLesson } from "@/data/schmetterling";
+import { allLessons } from "@/data/lessons";
 
 vi.mock("@/lib/logging", () => ({
   logAnswer: vi.fn(),
@@ -91,8 +92,68 @@ describe("LessonFlow", () => {
     fireEvent.click(screen.getByLabelText("Die Puppe"));
     await act(async () => { vi.advanceTimersByTime(1200); });
 
-    fireEvent.click(screen.getByText("Nochmal lernen"));
+    fireEvent.click(screen.getByRole("button", { name: "Lektion nochmal lernen" }));
     expect(screen.getByText("Vom Ei zum Schmetterling")).toBeDefined();
+    vi.useRealTimers();
+  });
+
+  it("shows Startseite and Nächste Lektion buttons on result screen", async () => {
+    vi.useFakeTimers();
+    render(<LessonFlow lesson={schmetterlingsLesson} />);
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Quiz starten"));
+
+    fireEvent.click(screen.getByLabelText("Die Raupe"));
+    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByLabelText("Die Puppe"));
+    await act(async () => { vi.advanceTimersByTime(1200); });
+
+    expect(screen.getByRole("link", { name: "Zurück zur Startseite" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Lektion nochmal lernen" })).toBeDefined();
+    vi.useRealTimers();
+  });
+
+  it("shows next lesson button when a next lesson exists", async () => {
+    vi.useFakeTimers();
+    render(<LessonFlow lesson={schmetterlingsLesson} />);
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Quiz starten"));
+
+    fireEvent.click(screen.getByLabelText("Die Raupe"));
+    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByLabelText("Die Puppe"));
+    await act(async () => { vi.advanceTimersByTime(1200); });
+
+    // schmetterling is first, so next lesson is wasserkreislauf
+    const nextLesson = allLessons[1];
+    expect(screen.getByRole("link", { name: `Nächste Lektion: ${nextLesson.title}` })).toBeDefined();
+    vi.useRealTimers();
+  });
+
+  it("hides next lesson button for the last lesson", async () => {
+    vi.useFakeTimers();
+    const lastLesson = allLessons[allLessons.length - 1];
+    render(<LessonFlow lesson={lastLesson} />);
+
+    // Navigate through sequence
+    for (let i = 0; i < lastLesson.sequence.length - 1; i++) {
+      fireEvent.click(screen.getByLabelText("Weiter"));
+    }
+    fireEvent.click(screen.getByLabelText("Quiz starten"));
+
+    // Answer all questions (pick first option each time)
+    for (let i = 0; i < lastLesson.questions.length; i++) {
+      const firstOption = lastLesson.questions[i].options[0];
+      fireEvent.click(screen.getByLabelText(firstOption.label));
+      const delay = lastLesson.questions[i].correctOptionId === firstOption.id ? 1200 : 2000;
+      await act(async () => { vi.advanceTimersByTime(delay); });
+    }
+
+    expect(screen.queryByText("Nächste Lektion")).toBeNull();
     vi.useRealTimers();
   });
 });
