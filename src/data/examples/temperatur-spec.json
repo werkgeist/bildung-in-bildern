@@ -1,0 +1,171 @@
+{
+  "id": "temperatur-einfach",
+  "version": 2,
+  "locale": "de",
+  "title": "Temperatur",
+  "description": "Du lernst, was kalt, kühl, warm und heiß bedeutet — und was bei jeder Temperatur passiert.",
+  "subject": "nature",
+  "difficulty": 1,
+  "learningGoals": [
+    "Die vier Temperaturstufen (kalt, kühl, warm, heiß) den richtigen Bildern zuordnen",
+    "Erkennen, was bei Kälte passiert (Eis, Schnee) und was bei Hitze (Schwitzen, Sonne)"
+  ],
+  "prerequisites": [
+    "Kennt: Sonne, Schnee, Wasser, Eis"
+  ],
+  "steps": [
+    {
+      "id": "temperatur-einfach-step-1",
+      "order": 1,
+      "label": "Kalt",
+      "alt": "Schneelandschaft mit Eis und Eiszapfen, ein Thermometer zeigt ganz unten",
+      "concept": "Wenn es kalt ist, gibt es Schnee und Eis",
+      "conceptTags": ["kalt", "schnee", "eis"],
+      "mustInclude": ["Schneelandschaft", "Eiszapfen", "Thermometer mit Anzeige ganz unten (blau)", "Schneeflocken"],
+      "mustAvoid": ["Menschen", "Text", "Buchstaben", "Zahlen", "Gesichter"],
+      "composition": "zentriert, Thermometer links",
+      "shotType": "wide",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "large"
+    },
+    {
+      "id": "temperatur-einfach-step-2",
+      "order": 2,
+      "label": "Kühl",
+      "alt": "Herbstlicher Park mit bunten Blättern, leichter Wind, Thermometer zeigt unteres Drittel",
+      "concept": "Kühl bedeutet: nicht kalt, nicht warm — wie im Herbst",
+      "conceptTags": ["kühl", "herbst", "frisch"],
+      "mustInclude": ["Herbstbäume mit bunten Blättern", "Thermometer unteres Drittel (hellblau/grün)", "leichter Wind (Blätter fliegen)"],
+      "mustAvoid": ["Menschen", "Text", "Buchstaben", "Zahlen", "Schnee", "Gesichter"],
+      "composition": "zentriert, Thermometer links",
+      "transitionType": "subject-to-subject",
+      "shotType": "wide",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "medium"
+    },
+    {
+      "id": "temperatur-einfach-step-3",
+      "order": 3,
+      "label": "Warm",
+      "alt": "Frühlingswiese mit Blumen und Sonne, Thermometer zeigt oberes Drittel",
+      "concept": "Warm ist angenehm — wie im Frühling mit Sonne und Blumen",
+      "conceptTags": ["warm", "frühling", "sonne"],
+      "mustInclude": ["Grüne Wiese mit bunten Blumen", "Sonne am Himmel", "Thermometer oberes Drittel (orange)", "Schmetterlinge oder Bienen"],
+      "mustAvoid": ["Menschen", "Text", "Buchstaben", "Zahlen", "Schnee", "Regen", "Gesichter"],
+      "composition": "zentriert, Thermometer links",
+      "transitionType": "subject-to-subject",
+      "shotType": "wide",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "medium"
+    },
+    {
+      "id": "temperatur-einfach-step-4",
+      "order": 4,
+      "label": "Heiß",
+      "alt": "Wüstenlandschaft mit großer Sonne, Hitzewellen über dem Sand, Thermometer zeigt ganz oben",
+      "concept": "Heiß bedeutet: die Sonne brennt, alles ist trocken",
+      "conceptTags": ["heiß", "sommer", "hitze"],
+      "mustInclude": ["Große strahlende Sonne", "Sandwüste oder trockener Boden", "Hitzewellen/Flimmern", "Thermometer ganz oben (rot)"],
+      "mustAvoid": ["Menschen", "Text", "Buchstaben", "Zahlen", "Wasser", "Schnee", "Gesichter"],
+      "composition": "zentriert, Thermometer links",
+      "transitionType": "subject-to-subject",
+      "shotType": "wide",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "large"
+    },
+    {
+      "id": "temperatur-einfach-step-5",
+      "order": 5,
+      "label": "Das Thermometer",
+      "alt": "Großes Thermometer mit vier farbigen Zonen: blau (kalt), grün (kühl), orange (warm), rot (heiß), kleine Bilder daneben",
+      "concept": "Das Thermometer zeigt, wie warm oder kalt es ist — von blau (kalt) bis rot (heiß)",
+      "conceptTags": ["thermometer", "übersicht", "kreislauf"],
+      "mustInclude": ["Großes Thermometer in der Mitte", "Vier farbige Zonen: blau unten, grün, orange, rot oben", "Kleine Icons neben jeder Zone: Schneeflocke, Blatt, Blume, Sonne"],
+      "mustAvoid": ["Menschen", "Text", "Buchstaben", "Zahlen", "Gesichter"],
+      "composition": "Thermometer zentral, Icons links und rechts",
+      "transitionType": "scene-to-scene",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "additive",
+      "panelSize": "large"
+    }
+  ],
+  "questions": [
+    {
+      "id": "temperatur-einfach-q-1",
+      "type": "mc-image",
+      "testsConcepts": ["warm", "frühling"],
+      "questionText": "Welches Bild zeigt warm?",
+      "options": [
+        {
+          "id": "temperatur-einfach-q-1-opt-1",
+          "label": "Frühlingswiese mit Sonne und Blumen",
+          "stepRef": "temperatur-einfach-step-3",
+          "isCorrect": true
+        },
+        {
+          "id": "temperatur-einfach-q-1-opt-2",
+          "label": "Schneelandschaft mit Eis",
+          "stepRef": "temperatur-einfach-step-1",
+          "isCorrect": false,
+          "distractorReason": "Das ist kalt, nicht warm"
+        },
+        {
+          "id": "temperatur-einfach-q-1-opt-3",
+          "label": "Wüste mit großer Sonne",
+          "stepRef": "temperatur-einfach-step-4",
+          "isCorrect": false,
+          "distractorReason": "Das ist heiß, nicht warm"
+        }
+      ],
+      "hint": "Warm ist angenehm — Blumen und grüne Wiese",
+      "difficulty": 1
+    },
+    {
+      "id": "temperatur-einfach-q-2",
+      "type": "mc-image",
+      "testsConcepts": ["kalt", "schnee", "eis"],
+      "questionText": "Was passiert wenn es sehr kalt ist?",
+      "options": [
+        {
+          "id": "temperatur-einfach-q-2-opt-1",
+          "label": "Schnee und Eis überall",
+          "stepRef": "temperatur-einfach-step-1",
+          "isCorrect": true
+        },
+        {
+          "id": "temperatur-einfach-q-2-opt-2",
+          "label": "Bunte Blätter fliegen im Wind",
+          "stepRef": "temperatur-einfach-step-2",
+          "isCorrect": false,
+          "distractorReason": "Das ist kühl (Herbst), nicht sehr kalt"
+        },
+        {
+          "id": "temperatur-einfach-q-2-opt-3",
+          "label": "Heiße Wüste mit Sonne",
+          "stepRef": "temperatur-einfach-step-4",
+          "isCorrect": false,
+          "distractorReason": "Das ist heiß, das Gegenteil von kalt"
+        }
+      ],
+      "hint": "Bei großer Kälte wird Wasser zu Eis und Schnee",
+      "difficulty": 1
+    }
+  ],
+  "style": {
+    "artStyle": "flat-vector",
+    "background": "white",
+    "colorPalette": ["#2D9CDB", "#6FCF97", "#F2994A", "#EB5757", "#FFFFFF", "#F2C94C"],
+    "negativePrompt": "text, letters, numbers, photorealistic, humans, faces, buildings, complex diagrams, words",
+    "presetName": "kyrill-friendly",
+    "characterDNA": "Thermometer als rotes Röhren-Thermometer mit farbiger Flüssigkeit, konsistent in allen Panels. Sonne als gelber Kreis mit Strahlen. Schneeflocken als symmetrische blaue Sterne.",
+    "styleBible": "Flat-vector, soft gradients, warm pastels on white background; friendly and calm, no sharp edges or dark colors; simple shapes, no outlines",
+    "spatialRules": {
+      "maintainLR": true
+    }
+  }
+}

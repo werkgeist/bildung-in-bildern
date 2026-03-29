@@ -1,0 +1,37 @@
+[
+  {
+    "stepId": "wasserkreislauf-einfach-step-1",
+    "order": 1,
+    "label": "Verdunstung",
+    "prompt": "flat vector style illustration, clean lines, minimalist, simple geometric shapes, smooth areas of solid color, no texture. light gradient sky background, soft blue to white, minimal details. Sonne scheint auf Meer, Wasser-Dampf steigt nach oben. Key elements: große gelbe Sonne oben, blaue Wasserfläche unten, helle Dampflinien über dem Wasser, Pfeile nach oben. limited color palette: #2D9CDB, #56CCF2, #F2C94C, #FFFFFF, #27AE60. centered subject, educational illustration, clear and simple, no text or labels",
+    "negativePrompt": "text, letters, photorealistic, humans, faces, buildings, complex diagrams, numbers, Wolken, Regen, Menschen, Text"
+  },
+  {
+    "stepId": "wasserkreislauf-einfach-step-2",
+    "order": 2,
+    "label": "Wolkenbildung",
+    "prompt": "flat vector style illustration, clean lines, minimalist, simple geometric shapes, smooth areas of solid color, no texture. light gradient sky background, soft blue to white, minimal details. Wasserdampf oben wird zu einer großen Wolke. Key elements: große weiße/graue Wolke am Himmel, aufsteigender Dampf darunter, Pfeile vom Dampf zur Wolke. limited color palette: #2D9CDB, #56CCF2, #F2C94C, #FFFFFF, #27AE60. centered subject, educational illustration, clear and simple, no text or labels",
+    "negativePrompt": "text, letters, photorealistic, humans, faces, buildings, complex diagrams, numbers, Blitze, Regen, Schnee, Text"
+  },
+  {
+    "stepId": "wasserkreislauf-einfach-step-3",
+    "order": 3,
+    "label": "Niederschlag",
+    "prompt": "flat vector style illustration, clean lines, minimalist, simple geometric shapes, smooth areas of solid color, no texture. light gradient sky background, soft blue to white, minimal details. Große Wolke, viele Regentropfen fallen nach unten. Key elements: große Wolke oben, deutliche Regentropfen nach unten, Pfeile nach unten, Boden oder Wasserfläche unten. limited color palette: #2D9CDB, #56CCF2, #F2C94C, #FFFFFF, #27AE60. centered subject, educational illustration, clear and simple, no text or labels",
+    "negativePrompt": "text, letters, photorealistic, humans, faces, buildings, complex diagrams, numbers, Menschen mit Regenschirmen, Häuser, Blitze, Text"
+  },
+  {
+    "stepId": "wasserkreislauf-einfach-step-4",
+    "order": 4,
+    "label": "Sammlung",
+    "prompt": "flat vector style illustration, clean lines, minimalist, simple geometric shapes, smooth areas of solid color, no texture. light gradient sky background, soft blue to white, minimal details. Regenwasser sammelt sich in Bach und See. Key elements: Bach oder Fluss, See oder Meer als Sammelbecken, Pfeile die Zusammenfließen zeigen. limited color palette: #2D9CDB, #56CCF2, #F2C94C, #FFFFFF, #27AE60. centered subject, educational illustration, clear and simple, no text or labels",
+    "negativePrompt": "text, letters, photorealistic, humans, faces, buildings, complex diagrams, numbers, Sonne stark sichtbar, Dampf, Autos, Text"
+  },
+  {
+    "stepId": "wasserkreislauf-einfach-step-5",
+    "order": 5,
+    "label": "Wieder von vorne",
+    "prompt": "flat vector style illustration, clean lines, minimalist, simple geometric shapes, smooth areas of solid color, no texture. light gradient sky background, soft blue to white, minimal details. Gewässer mit Sonne, Kreislauf-Pfeil zeigt: es beginnt von vorne. Key elements: großes Gewässer, Sonne, Pfeile nach oben, großer Kreislauf-Pfeil. limited color palette: #2D9CDB, #56CCF2, #F2C94C, #FFFFFF, #27AE60. centered subject, educational illustration, clear and simple, no text or labels",
+    "negativePrompt": "text, letters, photorealistic, humans, faces, buildings, complex diagrams, numbers, Text, Zahlen, Diagramm-Legende"
+  }
+]

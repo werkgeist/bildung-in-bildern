@@ -1,0 +1,124 @@
+{
+  "id": "schmetterling-lebenszyklus",
+  "version": 2,
+  "locale": "de",
+  "title": "Der Schmetterling",
+  "description": "Vom Ei zum Schmetterling — die vier Phasen der Metamorphose",
+  "subject": "nature",
+  "difficulty": 1,
+  "learningGoals": [
+    "Die vier Phasen der Schmetterlings-Metamorphose benennen können",
+    "Die richtige Reihenfolge der Phasen kennen"
+  ],
+  "steps": [
+    {
+      "id": "schmetterling-lebenszyklus-step-1",
+      "order": 1,
+      "label": "Das Ei",
+      "alt": "Ein kleines rundes Ei auf einem grünen Blatt",
+      "concept": "Ein Schmetterling beginnt sein Leben als winziges Ei auf einem Blatt",
+      "conceptTags": ["ei", "anfang", "blatt"],
+      "mustInclude": ["einzelnes kleines rundes Ei", "grünes Blatt als Unterlage"],
+      "mustAvoid": ["Raupe", "Schmetterling", "Puppe"]
+    },
+    {
+      "id": "schmetterling-lebenszyklus-step-2",
+      "order": 2,
+      "label": "Die Raupe",
+      "alt": "Eine grüne Raupe frisst an einem Blatt",
+      "concept": "Aus dem Ei schlüpft eine Raupe, die viel frisst und wächst",
+      "conceptTags": ["raupe", "fressen", "wachsen"],
+      "mustInclude": ["deutlich erkennbare Raupe", "angefressenes Blatt"],
+      "mustAvoid": ["Ei", "Puppe", "Flügel"]
+    },
+    {
+      "id": "schmetterling-lebenszyklus-step-3",
+      "order": 3,
+      "label": "Die Puppe",
+      "alt": "Eine Puppe hängt an einem Ast",
+      "concept": "Die Raupe verpuppt sich — in der Puppe verwandelt sie sich",
+      "conceptTags": ["puppe", "kokon", "verwandlung"],
+      "mustInclude": ["geschlossene Puppe/Kokon", "Ast oder Zweig"],
+      "mustAvoid": ["Raupe in Bewegung", "Schmetterling", "Ei"]
+    },
+    {
+      "id": "schmetterling-lebenszyklus-step-4",
+      "order": 4,
+      "label": "Der Schmetterling",
+      "alt": "Ein bunter Schmetterling mit ausgebreiteten Flügeln",
+      "concept": "Aus der Puppe schlüpft ein fertiger Schmetterling mit bunten Flügeln",
+      "conceptTags": ["schmetterling", "fluegel", "fertig"],
+      "mustInclude": ["Schmetterling mit ausgebreiteten bunten Flügeln"],
+      "mustAvoid": ["Puppe", "Raupe", "Ei"]
+    }
+  ],
+  "questions": [
+    {
+      "id": "schmetterling-lebenszyklus-q-1",
+      "type": "mc-image",
+      "testsConcepts": ["ei", "raupe"],
+      "questionText": "Was kommt nach dem Ei?",
+      "options": [
+        {
+          "id": "schmetterling-lebenszyklus-q-1-opt-1",
+          "label": "Die Raupe",
+          "stepRef": "schmetterling-lebenszyklus-step-2",
+          "isCorrect": true
+        },
+        {
+          "id": "schmetterling-lebenszyklus-q-1-opt-2",
+          "label": "Der Schmetterling",
+          "stepRef": "schmetterling-lebenszyklus-step-4",
+          "isCorrect": false,
+          "distractorReason": "Überspringt zwei Phasen — typischer Fehler weil Schmetterling das bekannteste Stadium ist"
+        },
+        {
+          "id": "schmetterling-lebenszyklus-q-1-opt-3",
+          "label": "Die Puppe",
+          "stepRef": "schmetterling-lebenszyklus-step-3",
+          "isCorrect": false,
+          "distractorReason": "Vertauscht Reihenfolge — Puppe kommt nach Raupe, nicht nach Ei"
+        }
+      ],
+      "hint": "Schau dir das zweite Bild noch einmal an",
+      "difficulty": 1
+    },
+    {
+      "id": "schmetterling-lebenszyklus-q-2",
+      "type": "mc-image",
+      "testsConcepts": ["raupe", "puppe"],
+      "questionText": "Was kommt nach der Raupe?",
+      "options": [
+        {
+          "id": "schmetterling-lebenszyklus-q-2-opt-1",
+          "label": "Das Ei",
+          "stepRef": "schmetterling-lebenszyklus-step-1",
+          "isCorrect": false,
+          "distractorReason": "Rückwärts-Fehler — Ei ist die erste Phase"
+        },
+        {
+          "id": "schmetterling-lebenszyklus-q-2-opt-2",
+          "label": "Die Puppe",
+          "stepRef": "schmetterling-lebenszyklus-step-3",
+          "isCorrect": true
+        },
+        {
+          "id": "schmetterling-lebenszyklus-q-2-opt-3",
+          "label": "Der Schmetterling",
+          "stepRef": "schmetterling-lebenszyklus-step-4",
+          "isCorrect": false,
+          "distractorReason": "Überspringt eine Phase — Puppe kommt dazwischen"
+        }
+      ],
+      "hint": "Schau dir das dritte Bild noch einmal an",
+      "difficulty": 1
+    }
+  ],
+  "style": {
+    "artStyle": "flat-vector",
+    "background": "white",
+    "colorPalette": ["#4CAF50", "#8BC34A", "#FF9800", "#E91E63", "#2196F3"],
+    "negativePrompt": "text, letters, watermark, clutter, busy background, photorealistic, cinematic lighting",
+    "presetName": "kyrill-friendly"
+  }
+}
