@@ -12,7 +12,7 @@ Backlog → Ready → In Progress → Code Review → Testing → Done
                            (bei Fehler zurück)
 ```
 
-Der **Poller** läuft alle 10-15 Minuten (Cron) und prüft den Board-Status.
+Der **Poller** läuft alle 15 Minuten (Cron) und prüft den Board-Status.
 Für jede aktive Spalte wird der passende Agent aufgerufen.
 
 ## Dateien

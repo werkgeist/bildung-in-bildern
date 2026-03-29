@@ -41,7 +41,7 @@ REASON: <ein Satz warum>
 QUESTIONS: <nur bei NOT_READY: konkrete Rückfragen, eine pro Zeile mit '- ' Präfix>"
 
 log "[$AGENT_NAME] Rufe Claude auf..."
-RESPONSE=$(timeout 600 claude --permission-mode bypassPermissions --print "$CONTEXT" 2>/dev/null)
+RESPONSE=$(timeout 1800 claude --print "$CONTEXT" 2>/dev/null)
 
 DECISION=$(echo "$RESPONSE" | grep '^DECISION:' | cut -d' ' -f2- | tr -d '[:space:]')
 REASON=$(echo "$RESPONSE" | grep '^REASON:' | cut -d' ' -f2-)

@@ -43,14 +43,25 @@ Führe 'git push' am Ende aus."
 log "[$AGENT_NAME] Starte Claude Code Implementierung..."
 cd "$WORKSPACE"
 
+HEAD_BEFORE=$(git rev-parse HEAD 2>/dev/null || echo "")
+
 IMPLEMENTATION_LOG=$(timeout 1800 claude --permission-mode bypassPermissions --print "$PROMPT" 2>&1)
 EXIT_CODE=$?
+
+HEAD_AFTER=$(git rev-parse HEAD 2>/dev/null || echo "")
 
 # Ermittle was sich geändert hat
 CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null | head -20 || echo "(keine neuen Commits)")
 LAST_COMMIT=$(git log --oneline -1 2>/dev/null || echo "kein Commit")
 
-if [[ $EXIT_CODE -eq 0 ]]; then
+# Prüfe ob Claude tatsächlich committet und gepusht hat
+if [[ $EXIT_CODE -eq 0 ]] && [[ "$HEAD_AFTER" != "$HEAD_BEFORE" ]]; then
+  # Verifiziere dass der Commit auch remote angekommen ist
+  REMOTE_HEAD=$(git ls-remote origin HEAD 2>/dev/null | cut -f1 || echo "")
+  if [[ -n "$REMOTE_HEAD" ]] && [[ "$REMOTE_HEAD" != "$HEAD_AFTER" ]]; then
+    log "[$AGENT_NAME] WARNUNG: Commit lokal vorhanden, aber git push scheint fehlgeschlagen (remote HEAD: ${REMOTE_HEAD:0:8}, lokal: ${HEAD_AFTER:0:8})"
+  fi
+
   gh_comment "**[Claude Code]** Implementierung abgeschlossen ✅
 
 **Commit:** \`${LAST_COMMIT}\`
@@ -64,6 +75,14 @@ ${CHANGED_FILES}
 
   gh_move_to "$STATUS_CODE_REVIEW"
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Code Review"
+elif [[ $EXIT_CODE -eq 0 ]] && [[ "$HEAD_AFTER" == "$HEAD_BEFORE" ]]; then
+  gh_comment "**[Claude Code]** Claude lief erfolgreich, hat aber keinen neuen Commit erstellt ⚠️
+
+**Letzter Commit (unverändert):** \`${LAST_COMMIT}\`
+
+→ Bleibt in _In Progress_ — manuelle Überprüfung erforderlich."
+
+  log "[$AGENT_NAME] Kein neuer Commit nach Claude-Lauf — bleibt in In Progress"
 else
   gh_comment "**[Claude Code]** Implementierung fehlgeschlagen ❌
 

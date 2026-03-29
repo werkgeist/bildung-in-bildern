@@ -15,7 +15,7 @@ BODY=$(gh_issue_body)
 cd "$WORKSPACE"
 
 # Ermittle den Diff seit main
-DIFF=$(git diff origin/main...HEAD -- '*.ts' '*.tsx' '*.mjs' '*.mts' 2>/dev/null | head -500)
+DIFF=$(git diff origin/main...HEAD -- '*.ts' '*.tsx' '*.mjs' '*.mts' '*.css' '*.json' '*.config.*' 2>/dev/null | head -2000)
 COMMIT_LOG=$(git log --oneline origin/main...HEAD 2>/dev/null | head -10)
 
 if [[ -z "$DIFF" ]]; then
@@ -64,8 +64,10 @@ FINDINGS:
 (leer wenn keine Befunde)"
 
 log "[$AGENT_NAME] Rufe Codex auf..."
-REVIEW=$(timeout 900 codex exec --full-auto "$PROMPT" 2>/dev/null) || \
-REVIEW=$(timeout 900 claude --permission-mode bypassPermissions --print "$PROMPT" 2>/dev/null)
+if ! REVIEW=$(timeout 1800 codex exec --full-auto "$PROMPT" 2>/dev/null); then
+  log "[$AGENT_NAME] Codex fehlgeschlagen oder nicht verfügbar — Fallback auf Claude."
+  REVIEW=$(timeout 1800 claude --print "$PROMPT" 2>/dev/null)
+fi
 
 DECISION=$(echo "$REVIEW" | grep '^DECISION:' | cut -d' ' -f2- | tr -d '[:space:]')
 SUMMARY=$(echo "$REVIEW" | grep '^SUMMARY:' | cut -d' ' -f2-)

@@ -10,8 +10,8 @@
  *   VERBOSE=1 node scripts/poll-board.mjs  # Verbose logging
  */
 
-import { execSync, spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,50 +19,25 @@ const __dir = dirname(fileURLToPath(import.meta.url));
 const DRYRUN = process.env.DRYRUN === '1';
 const VERBOSE = process.env.VERBOSE === '1';
 
+// ── flock-basierter Prozess-Mutex ────────────────────────────────────────────
+// Self-re-execution unter flock: Der äußere Prozess startet sich selbst mit
+// `flock -n LOCKFILE node script.mjs`. flock hält den Lock atomar für die
+// gesamte Laufzeit des inneren Prozesses — verhindert parallele Cron-Instanzen.
+const POLL_LOCK_FILE = '/tmp/bib-poller.lock';
+if (!process.env._BIB_FLOCKED) {
+  const result = spawnSync(
+    'flock', ['-n', POLL_LOCK_FILE, process.execPath, ...process.argv.slice(1)],
+    { stdio: 'inherit', env: { ...process.env, _BIB_FLOCKED: '1' } }
+  );
+  if (result.status === 1) {
+    console.log(`[${new Date().toISOString()}] Poller läuft bereits (flock aktiv) — beende.`);
+  }
+  process.exit(result.status ?? 0);
+}
+
 // ── Config ──────────────────────────────────────────────────────────────────
 
 const ENV_FILE = resolve(__dir, 'bib-board.env');
-const STATE_FILE = '/tmp/bib-poll-state.json';
-const LOCK_FILE = '/tmp/bib-poller.lock';
-
-// ── PID Lockfile (verhindert parallele Poller-Instanzen) ─────────────────────
-
-function acquireLock() {
-  try {
-    // flag 'wx' = O_WRONLY | O_CREAT | O_EXCL — atomar, schlägt fehl wenn Datei existiert
-    writeFileSync(LOCK_FILE, String(process.pid), { flag: 'wx' });
-  } catch (e) {
-    if (e.code === 'EEXIST') {
-      let stalePid = '';
-      try { stalePid = readFileSync(LOCK_FILE, 'utf-8').trim(); } catch { /* ignore */ }
-      if (stalePid) {
-        try {
-          process.kill(Number(stalePid), 0); // wirft wenn Prozess nicht existiert
-          log(`Poller läuft bereits (PID ${stalePid}). Beende.`);
-          process.exit(0);
-        } catch {
-          warn(`Veraltetes Lockfile gefunden (PID ${stalePid}). Entferne und starte neu.`);
-          try { unlinkSync(LOCK_FILE); } catch { /* ignore */ }
-          acquireLock();
-        }
-      } else {
-        try { unlinkSync(LOCK_FILE); } catch { /* ignore */ }
-        acquireLock();
-      }
-    } else {
-      throw e;
-    }
-  }
-}
-
-function releaseLock() {
-  try { unlinkSync(LOCK_FILE); } catch { /* ignore */ }
-}
-
-// Cleanup bei Exit/Signals
-process.on('exit', releaseLock);
-process.on('SIGINT', () => { releaseLock(); process.exit(130); });
-process.on('SIGTERM', () => { releaseLock(); process.exit(143); });
 
 function loadEnv(filePath) {
   const env = {};
@@ -78,6 +53,9 @@ function loadEnv(filePath) {
 
 const CFG = loadEnv(ENV_FILE);
 const GH_TOKEN = readFileSync(CFG.GH_TOKEN_FILE, 'utf-8').trim();
+
+// STATE_FILE im Workspace (nicht /tmp) — überlebt Reboots
+const STATE_FILE = resolve(CFG.WORKSPACE, '.pipeline-state.json');
 
 // ── Logging ──────────────────────────────────────────────────────────────────
 
@@ -252,11 +230,11 @@ function dispatchAgent(agentName, issueNumber, itemId) {
     return;
   }
 
-  // Run agent in background (detached) so poller doesn't block
+  // Agents laufen synchron (claude --print blockiert bis zu 30+ Min).
+  // Der flock-Mutex oben verhindert, dass zwei Poller-Instanzen gleichzeitig laufen.
   const result = spawnSync(
     'bash', [scriptPath, String(issueNumber), itemId],
     {
-      detached: false, // wait for it (agents are quick-launching, actual work is async via claude)
       stdio: ['ignore', 'pipe', 'pipe'],
       env: {
         ...process.env,
@@ -350,7 +328,6 @@ async function poll() {
   log(`Poll abgeschlossen: ${dispatched} dispatched, ${locked} locked, ${skipped} skipped.`);
 }
 
-acquireLock();
 poll().catch((e) => {
   console.error(`[FATAL] ${e.message}`);
   process.exit(1);
