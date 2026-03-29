@@ -171,6 +171,7 @@ export interface LessonV1 {
   id: string;
   title: string;
   description: string;
+  difficulty?: 1 | 2 | 3;
   sequence: { id: string; src: string; label: string; alt: string }[];
   questions: {
     id: string;

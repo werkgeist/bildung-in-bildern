@@ -1,19 +1,12 @@
 import { notFound } from "next/navigation";
 import LessonFlow from "@/components/LessonFlow";
-import { schmetterlingsLesson } from "@/data/schmetterling";
-import { wasserkreislaufLesson } from "@/data/wasserkreislauf";
-import type { Lesson } from "@/types/lesson";
-
-const lessons: Record<string, Lesson> = {
-  [schmetterlingsLesson.id]: schmetterlingsLesson,
-  [wasserkreislaufLesson.id]: wasserkreislaufLesson,
-};
+import { lessonsById, allLessons } from "@/data/lessons";
 
 // Required for `output: "export"` (static export)
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return Object.keys(lessons).map((id) => ({ id }));
+  return allLessons.map((l) => ({ id: l.id }));
 }
 
 export default async function LessonPage({
@@ -22,7 +15,7 @@ export default async function LessonPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const lesson = lessons[id];
+  const lesson = lessonsById[id];
 
   if (!lesson) notFound();
 

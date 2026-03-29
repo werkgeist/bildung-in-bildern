@@ -1,23 +1,78 @@
+import Image from "next/image";
 import Link from "next/link";
+import { allLessons } from "@/data/lessons";
+import type { Lesson } from "@/types/lesson";
+
+function DifficultyStars({ level }: { level?: 1 | 2 | 3 }) {
+  const filled = level ?? 1;
+  return (
+    <div className="flex gap-1" aria-label={`Schwierigkeit: ${filled} von 3`}>
+      {[1, 2, 3].map((i) => (
+        <span
+          key={i}
+          className={i <= filled ? "text-amber-400" : "text-gray-200"}
+          aria-hidden
+        >
+          ★
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function LessonCard({ lesson }: { lesson: Lesson }) {
+  const cover = lesson.sequence[0];
+  return (
+    <Link
+      href={`/lesson/${lesson.id}`}
+      className="group flex flex-col rounded-2xl overflow-hidden bg-amber-50 border-2 border-amber-100 active:border-amber-400 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
+      aria-label={`Lektion: ${lesson.title}`}
+    >
+      <div className="relative w-full aspect-[4/3] bg-amber-100">
+        {cover ? (
+          <Image
+            src={cover.src}
+            alt={cover.alt}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 280px"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-4xl text-amber-300">
+            ?
+          </div>
+        )}
+      </div>
+      <div className="flex flex-col gap-1 p-3 min-h-[80px] justify-center">
+        <p className="text-base font-bold text-amber-800 leading-tight line-clamp-2">
+          {lesson.title}
+        </p>
+        <DifficultyStars level={lesson.difficulty} />
+      </div>
+    </Link>
+  );
+}
 
 export default function Home() {
+  const lessons = allLessons.slice(0, 6);
+
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-white px-4 text-center">
-      <h1 className="text-4xl font-bold text-amber-700 mb-2">Bildung in Bildern</h1>
-      <p className="text-xl text-gray-500 mb-12">Lernen mit Bildern</p>
-      <div className="flex flex-col gap-4 w-full max-w-sm">
-        <Link
-          href="/lesson/schmetterling-lebenszyklus"
-          className="inline-flex items-center justify-center px-10 py-5 bg-amber-500 text-white text-2xl font-bold rounded-2xl active:bg-amber-600 transition-colors min-h-[80px]"
-        >
-          🦋 Der Schmetterling
-        </Link>
-        <Link
-          href="/lesson/wasserkreislauf-einfach"
-          className="inline-flex items-center justify-center px-10 py-5 bg-sky-500 text-white text-2xl font-bold rounded-2xl active:bg-sky-600 transition-colors min-h-[80px]"
-        >
-          💧 Der Wasserkreislauf
-        </Link>
+    <main className="flex flex-col items-center min-h-screen bg-white px-4 py-10">
+      <h1 className="text-4xl font-bold text-amber-700 mb-2 text-center">
+        Bildung in Bildern
+      </h1>
+      <p className="text-xl text-gray-500 mb-10 text-center">Lernen mit Bildern</p>
+
+      <div
+        className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-2xl"
+        role="list"
+        aria-label="Lektionen"
+      >
+        {lessons.map((lesson) => (
+          <div key={lesson.id} role="listitem">
+            <LessonCard lesson={lesson} />
+          </div>
+        ))}
       </div>
     </main>
   );

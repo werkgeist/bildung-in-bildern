@@ -22,6 +22,7 @@ export interface Lesson {
   id: string;
   title: string;
   description: string;
+  difficulty?: 1 | 2 | 3;
   sequence: LessonImage[];
   questions: QuizQuestion[];
 }

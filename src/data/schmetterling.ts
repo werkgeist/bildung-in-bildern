@@ -4,6 +4,7 @@ export const schmetterlingsLesson: Lesson = {
   id: "schmetterling-lebenszyklus",
   title: "Der Schmetterling",
   description: "Vom Ei zum Schmetterling",
+  difficulty: 1,
   sequence: [
     { id: "ei", src: "/images/schmetterling/01-ei.webp", label: "Das Ei", alt: "Ein kleines Ei auf einem Blatt" },
     { id: "raupe", src: "/images/schmetterling/02-raupe.webp", label: "Die Raupe", alt: "Eine Raupe frisst ein Blatt" },

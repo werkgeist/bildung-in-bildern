@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Lesson } from "@/types/lesson";
 import SequenceViewer from "./SequenceViewer";
 import Quiz from "./Quiz";
@@ -30,6 +31,15 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
   if (phase === "sequence") {
     return (
       <div className="flex flex-col items-center py-8">
+        <div className="w-full max-w-lg px-4 mb-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1 text-amber-600 font-semibold text-base active:text-amber-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 rounded-lg px-2 py-1 min-h-[44px]"
+            aria-label="Zurück zur Lektionsauswahl"
+          >
+            ← Zurück
+          </Link>
+        </div>
         <h1 className="text-3xl font-bold text-amber-700 mb-2">{lesson.title}</h1>
         <p className="text-gray-500 mb-8">{lesson.description}</p>
         <SequenceViewer sequence={lesson.sequence} onComplete={handleSequenceComplete} lessonId={lesson.id} />

@@ -37,6 +37,7 @@ export function convertToV1(spec: LessonSpec, assets: AssetManifest): LessonV1 {
     id: spec.id,
     title: spec.title,
     description: spec.description,
+    difficulty: spec.difficulty,
     sequence,
     questions,
   };
