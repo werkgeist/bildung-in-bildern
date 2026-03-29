@@ -95,6 +95,21 @@ describe("Quiz", () => {
     expect(wrongBtn.className).not.toContain("border-red");
   });
 
+  it("incorrect answer button gets amber shadow (no red)", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    const wrongBtn = screen.getByLabelText("Der Schmetterling");
+    fireEvent.click(wrongBtn);
+    expect(wrongBtn.className).toContain("shadow-[0_0_0_4px_rgba(251,191,36,0.7)]");
+    expect(wrongBtn.className).not.toContain("red");
+  });
+
+  it("correct answer gets pulse animation when wrong answer selected", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText("Der Schmetterling"));
+    const correctBtn = screen.getByLabelText("Die Raupe");
+    expect(correctBtn.className).toContain("animate-correct-pulse");
+  });
+
   it("correct answer shown with green border when wrong answer selected", () => {
     render(<Quiz questions={questions} onComplete={vi.fn()} />);
     fireEvent.click(screen.getByLabelText("Der Schmetterling"));
@@ -120,6 +135,30 @@ describe("Quiz", () => {
     // Should advance at 2000ms
     await act(async () => { vi.advanceTimersByTime(800); });
     expect(screen.getByText("Frage 2 von 2")).toBeDefined();
+  });
+
+  it("incorrect answer button gets amber shadow (not red)", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    const wrongBtn = screen.getByLabelText("Der Schmetterling");
+    fireEvent.click(wrongBtn);
+    expect(wrongBtn.className).toContain("shadow-[0_0_0_4px_rgba(251,191,36,0.7)]");
+    expect(wrongBtn.className).not.toMatch(/red/);
+  });
+
+  it("correct answer shown with pulse animation when wrong answer selected", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText("Der Schmetterling"));
+    const correctBtn = screen.getByLabelText("Die Raupe");
+    expect(correctBtn.className).toContain("animate-correct-pulse");
+  });
+
+  it("no red colors appear on any button after incorrect selection", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText("Der Schmetterling"));
+    const buttons = screen.getAllByRole("button");
+    buttons.forEach((btn) => {
+      expect(btn.className).not.toMatch(/red/);
+    });
   });
 
   it("calls onComplete with score after all questions answered", async () => {

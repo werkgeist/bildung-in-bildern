@@ -155,7 +155,7 @@ Ergebnis
 Kyrill tippt falsche Antwort
     │
     ▼
-Gewähltes Bild: leichter roter Schatten (KEIN roter Rahmen)
+Gewähltes Bild: bernstein/orange Schatten (KEIN Rot!)
 Richtige Antwort: grüner Rahmen + sanftes Pulsieren
     │ 2 Sekunden warten
     ▼

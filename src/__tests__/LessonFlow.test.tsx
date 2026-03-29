@@ -7,6 +7,10 @@ vi.mock("@/lib/logging", () => ({
   logAnswer: vi.fn(),
 }));
 
+vi.mock("@/hooks/useHaptic", () => ({
+  useHaptic: () => ({ correct: vi.fn(), incorrect: vi.fn() }),
+}));
+
 describe("LessonFlow", () => {
   it("starts in sequence phase showing lesson title", () => {
     render(<LessonFlow lesson={schmetterlingsLesson} />);
@@ -62,7 +66,7 @@ describe("LessonFlow", () => {
 
     // Answer q1 wrong
     fireEvent.click(screen.getByLabelText("Der Schmetterling"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    await act(async () => { vi.advanceTimersByTime(2000); });
 
     // Answer q2 correct
     fireEvent.click(screen.getByLabelText("Die Puppe"));
