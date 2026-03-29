@@ -10,7 +10,7 @@
  *   VERBOSE=1 node scripts/poll-board.mjs  # Verbose logging
  */
 
-import { spawnSync } from 'node:child_process';
+import { spawnSync, spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -243,12 +243,13 @@ function dispatchAgent(agentName, issueNumber, itemId) {
     return;
   }
 
-  // Agents laufen synchron (claude --print blockiert bis zu 30+ Min).
-  // Der flock-Mutex oben verhindert, dass zwei Poller-Instanzen gleichzeitig laufen.
-  const result = spawnSync(
+  // M4: Agents laufen detached (spawn + unref) — Poller blockiert nicht auf Agent-Laufzeit.
+  // Max 1 Dispatch pro Poll-Lauf (break im Haupt-Loop) verhindert Überlastung.
+  const child = spawn(
     'bash', [scriptPath, String(issueNumber), itemId],
     {
-      stdio: ['ignore', 'pipe', 'pipe'],
+      detached: true,
+      stdio: 'ignore',
       env: {
         ...process.env,
         GH_TOKEN,
@@ -266,10 +267,9 @@ function dispatchAgent(agentName, issueNumber, itemId) {
       },
     }
   );
+  child.unref();
+  log(`#${issueNumber}: Agent [${agentName}] gestartet (PID ${child.pid})`);
 
-  if (result.status !== 0) {
-    warn(`Agent [${agentName}] für #${issueNumber} fehlgeschlagen:\n${result.stderr}`);
-  }
 }
 
 // ── Main Poll Loop ────────────────────────────────────────────────────────────

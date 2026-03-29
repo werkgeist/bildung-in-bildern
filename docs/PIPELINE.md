@@ -117,7 +117,8 @@ Implementiert das Issue vollständig:
 **Tool:** Codex (codex exec --full-auto), Fallback: Claude
 
 Überprüft den Diff gegen `origin/main`:
-- `git stash` am Anfang (saubere Basis), `git stash pop` via EXIT-Trap
+- `git fetch origin` + `git stash` am Anfang (aktueller, sauberer Stand), `git stash pop` via EXIT-Trap
+- Issue-Spec und Diff werden in Temp-Dateien geschrieben (M3: kein Inline-Content im Prompt)
 - Spec-Compliance (Issue-Anforderungen erfüllt?)
 - Bugs, Typen-Fehler, Sicherheit
 - WCAG 2.2 AA, Performance, Conventional Commits
@@ -195,6 +196,16 @@ Prefix-Konvention:
 - `**[Codex]**` — Review Agent
 - `**[Test]**` — Test Agent
 
+## Sicherheit & Akzeptierte Risiken
+
+### M3: Prompt Injection — Akzeptiertes Risiko
+
+Agents lesen Issue-Text aus einer Datei. Das schafft keine echte Trust-Boundary — das Modell
+konsumiert trotzdem Attacker-kontrollierten Text. Mitigationsmaßnahme bewusst nicht umgesetzt:
+
+**Begründung:** Privates Repo. Nur Sergey und Werkgeist haben Write-Zugang.
+Die Trust-Boundary ist der Repo-Zugang selbst — wer Issues schreiben kann, ist vertrauenswürdig.
+
 ## Auth
 
 Alle Agents und der Poller nutzen das Classic PAT aus `~/.config/git-token`.
@@ -207,7 +218,7 @@ und funktioniert nicht für Board-Verschiebungen!
 
 ```bash
 # Poll-State ansehen
-cat /tmp/bib-poll-state.json
+cat /home/werkgeist/.openclaw/workspace/bildung-in-bildern/.pipeline-state.json
 
 # Poll-Log (wenn als Cron eingerichtet)
 tail -f /tmp/bib-poll.log

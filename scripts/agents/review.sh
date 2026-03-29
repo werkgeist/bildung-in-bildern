@@ -14,6 +14,9 @@ BODY=$(gh_issue_body)
 
 cd "$WORKSPACE"
 
+# B3: Sauberen, aktuellen Stand sicherstellen
+git fetch origin
+
 # B3: Workspace-Isolation via git stash (Review ist read-only, kein Worktree nötig)
 STASH_MSG=$(git stash --include-untracked 2>&1 || true)
 if echo "$STASH_MSG" | grep -q "Saved"; then
@@ -21,7 +24,15 @@ if echo "$STASH_MSG" | grep -q "Saved"; then
 else
   STASHED=0
 fi
-trap '[[ ${STASHED:-0} -eq 1 ]] && git -C "$WORKSPACE" stash pop 2>/dev/null || true; gh_unlock' EXIT
+
+# M3: Trust Boundary — Issue-Body und Diff in Dateien schreiben, NICHT inline in Prompt.
+# Attacker-controlled content wird als Datei übergeben, nicht als Prompt-Instruktion.
+# Hinweis: Vollständige Prompt-Injection-Resistenz erfordert Output-Filtering; dies ist
+# defensive Härtung (reduziert Angriffsfläche bei Modellen die Datei-Quellen anders gewichten).
+REVIEW_SPEC_FILE="/tmp/review-spec-${ISSUE_NUMBER}.md"
+REVIEW_DIFF_FILE="/tmp/review-diff-${ISSUE_NUMBER}.patch"
+
+trap '[[ ${STASHED:-0} -eq 1 ]] && git -C "$WORKSPACE" stash pop 2>/dev/null || true; gh_unlock; rm -f "$REVIEW_SPEC_FILE" "$REVIEW_DIFF_FILE"' EXIT
 
 # Ermittle den Diff seit main
 DIFF=$(git diff origin/main...HEAD -- '*.ts' '*.tsx' '*.mjs' '*.mts' '*.css' '*.json' '*.config.*' 2>/dev/null | head -2000)
@@ -37,24 +48,24 @@ Möglicherweise wurde noch kein Code gepusht. Bitte manuell prüfen.
   exit 0
 fi
 
+# Issue-Spec und Diff in Dateien schreiben (M3: kein inline-untrusted content im Prompt)
+{
+  printf '# Issue #%s: %s\n\n' "$ISSUE_NUMBER" "$TITLE"
+  printf '## Anforderungen (Spec)\n\n%s\n' "$BODY"
+} > "$REVIEW_SPEC_FILE"
+printf '%s\n' "$DIFF" > "$REVIEW_DIFF_FILE"
+
 PROMPT="Du bist ein unabhängiger Code-Reviewer für das Projekt 'Bildung in Bildern'.
 Stack: Next.js 16, TypeScript, Tailwind CSS v4.
 Zielgruppe: Kyrill (22J, nonverbal, Autismus Level 2-3). Touch-only iPad-App.
 
-Reviewe den folgenden Git-Diff auf Korrektheit, Sicherheit und Spec-Compliance.
+Reviewe den Code auf Korrektheit, Sicherheit und Spec-Compliance.
 
 Issue #${ISSUE_NUMBER}: ${TITLE}
+Commits: ${COMMIT_LOG}
 
-Spec:
-${BODY}
-
-Commits:
-${COMMIT_LOG}
-
-Diff:
-\`\`\`diff
-${DIFF}
-\`\`\`
+Lies die Spec (Anforderungen) aus: ${REVIEW_SPEC_FILE}
+Lies den Diff aus: ${REVIEW_DIFF_FILE}
 
 Review-Kriterien:
 1. Implementiert der Code was das Issue verlangt?
