@@ -5,4 +5,4 @@ pages_build_output_dir = "out"
 [[d1_databases]]
 binding = "DB"
 database_name = "bib-analytics"
-database_id = "PLACEHOLDER"
+database_id = "b41cf4b0-6217-4da1-a9e8-e11568e504a7"

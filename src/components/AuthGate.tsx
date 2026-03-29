@@ -11,6 +11,7 @@ import {
   getStoredUsername,
   normalizeUsername,
 } from "@/lib/auth";
+import { isDryrun } from "@/lib/analytics";
 
 type AuthState = "loading" | "locked" | "username-prompt" | "authorized";
 
@@ -19,6 +20,8 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [usernameInput, setUsernameInput] = useState("");
 
   useEffect(() => {
+    isDryrun(); // persist ?dryrun=true to sessionStorage before any navigation
+
     let token = getCookie(TOKEN_COOKIE);
 
     if (!isValidToken(token)) {
