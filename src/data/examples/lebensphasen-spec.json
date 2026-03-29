@@ -1,0 +1,171 @@
+{
+  "id": "lebensphasen-einfach",
+  "version": 2,
+  "locale": "de",
+  "title": "Lebensphasen",
+  "description": "Du siehst, wie ein Mensch aufwächst — vom Baby bis zur Arbeit.",
+  "subject": "daily-life",
+  "difficulty": 1,
+  "learningGoals": [
+    "Die fünf Lebensphasen in der richtigen Reihenfolge zeigen können",
+    "Erkennen, in welcher Phase man gerade selbst ist"
+  ],
+  "prerequisites": [
+    "Kennt: Baby, Kind, Erwachsener"
+  ],
+  "steps": [
+    {
+      "id": "lebensphasen-einfach-step-1",
+      "order": 1,
+      "label": "Baby",
+      "alt": "Ein Baby liegt in einer Wiege und schläft friedlich",
+      "concept": "Jeder Mensch beginnt als Baby — klein und hilflos",
+      "conceptTags": ["baby", "anfang", "geburt"],
+      "mustInclude": ["Baby in einer Wiege oder auf einer Decke", "Schnuller oder Fläschchen", "Weiche Farben, friedliche Stimmung"],
+      "mustAvoid": ["Text", "Buchstaben", "Zahlen", "Gesichtsdetails", "realistische Gesichter"],
+      "composition": "zentriert",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "medium"
+    },
+    {
+      "id": "lebensphasen-einfach-step-2",
+      "order": 2,
+      "label": "Kleinkind",
+      "alt": "Ein Kleinkind spielt mit Bauklötzen im Kindergarten",
+      "concept": "Als Kleinkind geht man in den Kindergarten und lernt spielen",
+      "conceptTags": ["kleinkind", "kindergarten", "spielen"],
+      "mustInclude": ["Kleines Kind mit Bauklötzen oder Spielzeug", "Bunte Spielsachen", "Kindergarten-Atmosphäre"],
+      "mustAvoid": ["Text", "Buchstaben", "Zahlen", "realistische Gesichter", "detaillierte Gesichtszüge"],
+      "composition": "zentriert",
+      "transitionType": "action-to-action",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "medium"
+    },
+    {
+      "id": "lebensphasen-einfach-step-3",
+      "order": 3,
+      "label": "Kind",
+      "alt": "Ein Kind sitzt an einem Tisch in der Schule mit Büchern und Stiften",
+      "concept": "Als Kind geht man in die Schule und lernt lesen und schreiben",
+      "conceptTags": ["kind", "schule", "lernen"],
+      "mustInclude": ["Kind an einem Schultisch", "Bücher und Stifte", "Schulranzen oder Tafel im Hintergrund"],
+      "mustAvoid": ["Text", "Buchstaben", "Zahlen", "realistische Gesichter", "detaillierte Gesichtszüge"],
+      "composition": "zentriert",
+      "transitionType": "action-to-action",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "medium"
+    },
+    {
+      "id": "lebensphasen-einfach-step-4",
+      "order": 4,
+      "label": "Junger Erwachsener",
+      "alt": "Ein junger Erwachsener in Arbeitskleidung lernt einen Beruf",
+      "concept": "Als junger Erwachsener macht man eine Ausbildung und lernt einen Beruf",
+      "conceptTags": ["ausbildung", "beruf", "erwachsen"],
+      "mustInclude": ["Junge Person in Arbeitskleidung oder Schürze", "Werkzeuge oder Arbeitsmaterialien", "Werkstatt oder Arbeitsplatz"],
+      "mustAvoid": ["Text", "Buchstaben", "Zahlen", "realistische Gesichter", "detaillierte Gesichtszüge"],
+      "composition": "zentriert",
+      "transitionType": "action-to-action",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "medium"
+    },
+    {
+      "id": "lebensphasen-einfach-step-5",
+      "order": 5,
+      "label": "Arbeit",
+      "alt": "Ein Erwachsener arbeitet an einem Arbeitsplatz, glücklich und beschäftigt",
+      "concept": "Als Erwachsener geht man zur Arbeit — wie du jeden Tag",
+      "conceptTags": ["arbeit", "erwachsen", "alltag"],
+      "mustInclude": ["Erwachsene Person an einem Arbeitsplatz", "Arbeitstisch oder Werkbank", "Zufriedene Körperhaltung", "Werkzeuge oder Arbeitsmaterialien"],
+      "mustAvoid": ["Text", "Buchstaben", "Zahlen", "realistische Gesichter", "detaillierte Gesichtszüge", "Computer-Bildschirme"],
+      "composition": "zentriert",
+      "transitionType": "action-to-action",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "large"
+    }
+  ],
+  "questions": [
+    {
+      "id": "lebensphasen-einfach-q-1",
+      "type": "mc-image",
+      "testsConcepts": ["schule", "kind", "lernen"],
+      "questionText": "Welches Bild zeigt die Schule?",
+      "options": [
+        {
+          "id": "lebensphasen-einfach-q-1-opt-1",
+          "label": "Kind an einem Schultisch mit Büchern",
+          "stepRef": "lebensphasen-einfach-step-3",
+          "isCorrect": true
+        },
+        {
+          "id": "lebensphasen-einfach-q-1-opt-2",
+          "label": "Baby in einer Wiege",
+          "stepRef": "lebensphasen-einfach-step-1",
+          "isCorrect": false,
+          "distractorReason": "Das ist ein Baby, nicht ein Schulkind"
+        },
+        {
+          "id": "lebensphasen-einfach-q-1-opt-3",
+          "label": "Erwachsener bei der Arbeit",
+          "stepRef": "lebensphasen-einfach-step-5",
+          "isCorrect": false,
+          "distractorReason": "Das ist Arbeit, nicht Schule"
+        }
+      ],
+      "hint": "In der Schule gibt es Bücher und Stifte",
+      "difficulty": 1
+    },
+    {
+      "id": "lebensphasen-einfach-q-2",
+      "type": "mc-image",
+      "testsConcepts": ["arbeit", "erwachsen"],
+      "questionText": "Was kommt nach der Ausbildung?",
+      "options": [
+        {
+          "id": "lebensphasen-einfach-q-2-opt-1",
+          "label": "Erwachsener arbeitet am Arbeitsplatz",
+          "stepRef": "lebensphasen-einfach-step-5",
+          "isCorrect": true
+        },
+        {
+          "id": "lebensphasen-einfach-q-2-opt-2",
+          "label": "Kleinkind spielt mit Bauklötzen",
+          "stepRef": "lebensphasen-einfach-step-2",
+          "isCorrect": false,
+          "distractorReason": "Kindergarten kommt viel früher, nicht nach der Ausbildung"
+        },
+        {
+          "id": "lebensphasen-einfach-q-2-opt-3",
+          "label": "Kind in der Schule",
+          "stepRef": "lebensphasen-einfach-step-3",
+          "isCorrect": false,
+          "distractorReason": "Schule kommt vor der Ausbildung, nicht danach"
+        }
+      ],
+      "hint": "Nach der Ausbildung geht man jeden Tag zur Arbeit",
+      "difficulty": 1
+    }
+  ],
+  "style": {
+    "artStyle": "flat-vector",
+    "background": "white",
+    "colorPalette": ["#F2C94C", "#56CCF2", "#6FCF97", "#F2994A", "#BB6BD9", "#FFFFFF"],
+    "negativePrompt": "text, letters, numbers, photorealistic, realistic faces, detailed facial features, complex backgrounds, dark colors, scary elements",
+    "presetName": "kyrill-friendly",
+    "characterDNA": "Stilisierte Figuren ohne detaillierte Gesichter — nur einfache runde Köpfe mit minimalem Ausdruck. Jede Lebensphase zeigt eine Figur in passender Größe. Warme, freundliche Farben.",
+    "styleBible": "Flat-vector, soft gradients, warm pastels on white background; friendly and calm, no sharp edges or dark colors; simple rounded shapes, no outlines, no realistic features",
+    "spatialRules": {
+      "maintainLR": true
+    }
+  }
+}
