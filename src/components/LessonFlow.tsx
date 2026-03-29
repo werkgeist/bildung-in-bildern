@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import type { Lesson } from "@/types/lesson";
 import SequenceViewer from "./SequenceViewer";
 import Quiz from "./Quiz";
-import { markComplete } from "@/hooks/useProgress";
+import { markComplete, getProgress } from "@/hooks/useProgress";
 import { allLessons } from "@/data/lessons";
 
 interface LessonFlowProps {
@@ -16,8 +17,19 @@ interface LessonFlowProps {
 type Phase = "sequence" | "quiz" | "result";
 
 export default function LessonFlow({ lesson }: LessonFlowProps) {
-  const [phase, setPhase] = useState<Phase>("sequence");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const isQuizMode = searchParams.get("mode") === "quiz";
+
+  const [phase, setPhase] = useState<Phase>(isQuizMode ? "quiz" : "sequence");
   const [finalScore, setFinalScore] = useState(0);
+
+  // Guard: quiz mode only allowed if lesson was completed at least once
+  useEffect(() => {
+    if (isQuizMode && !getProgress(lesson.id)) {
+      router.replace(`/lesson/${lesson.id}`);
+    }
+  }, [isQuizMode, lesson.id, router]);
 
   const handleSequenceComplete = () => setPhase("quiz");
 
@@ -29,7 +41,7 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
   };
 
   const handleRestart = () => {
-    setPhase("sequence");
+    setPhase(isQuizMode ? "quiz" : "sequence");
     setFinalScore(0);
   };
 
@@ -55,6 +67,17 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
   if (phase === "quiz") {
     return (
       <div className="flex flex-col items-center py-8">
+        {isQuizMode && (
+          <div className="w-full max-w-lg px-4 mb-4">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1 text-amber-600 font-semibold text-base active:text-amber-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 rounded-lg px-2 py-1 min-h-[44px]"
+              aria-label="Zurück zur Lektionsauswahl"
+            >
+              ← Zurück
+            </Link>
+          </div>
+        )}
         <h1 className="text-3xl font-bold text-amber-700 mb-8">Quiz</h1>
         <Quiz questions={lesson.questions} onComplete={handleQuizComplete} lessonId={lesson.id} />
       </div>
@@ -103,6 +126,18 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
           <span aria-hidden className="text-2xl">🏠</span>
           Startseite
         </Link>
+
+        {/* Quiz wiederholen (nur im normalen Modus) */}
+        {!isQuizMode && (
+          <Link
+            href={`/lesson/${lesson.id}?mode=quiz`}
+            aria-label="Quiz wiederholen"
+            className="flex items-center justify-center gap-3 w-full min-h-[64px] px-6 py-3 bg-blue-50 text-blue-700 text-lg font-semibold rounded-2xl active:bg-blue-100 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-400"
+          >
+            <span aria-hidden className="text-xl">📝</span>
+            Quiz wiederholen
+          </Link>
+        )}
 
         {/* Nächste Lektion */}
         {nextLesson && (

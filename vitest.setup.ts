@@ -32,6 +32,12 @@ vi.mock("next/image", () => ({
   }) => React.createElement("img", { src, alt, className }),
 }));
 
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => "/",
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,

@@ -134,6 +134,24 @@ describe("LessonFlow", () => {
     vi.useRealTimers();
   });
 
+  it("shows Quiz wiederholen button on result screen in normal mode", async () => {
+    vi.useFakeTimers();
+    render(<LessonFlow lesson={schmetterlingsLesson} />);
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Quiz starten"));
+
+    fireEvent.click(screen.getByLabelText("Die Raupe"));
+    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByLabelText("Die Puppe"));
+    await act(async () => { vi.advanceTimersByTime(1200); });
+
+    const quizRepeatLink = screen.getByRole("link", { name: "Quiz wiederholen" });
+    expect(quizRepeatLink.getAttribute("href")).toBe(`/lesson/${schmetterlingsLesson.id}?mode=quiz`);
+    vi.useRealTimers();
+  });
+
   it("hides next lesson button for the last lesson", async () => {
     vi.useFakeTimers();
     const lastLesson = allLessons[allLessons.length - 1];

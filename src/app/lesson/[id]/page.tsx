@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import LessonFlow from "@/components/LessonFlow";
 import { lessonsById, allLessons } from "@/data/lessons";
@@ -21,7 +22,9 @@ export default async function LessonPage({
 
   return (
     <main className="min-h-screen bg-white">
-      <LessonFlow lesson={lesson} />
+      <Suspense>
+        <LessonFlow lesson={lesson} />
+      </Suspense>
     </main>
   );
 }
