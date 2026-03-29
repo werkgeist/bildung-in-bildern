@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import type { QuizQuestion } from "@/types/lesson";
 import { logAnswer } from "@/lib/logging";
+import { trackEvent } from "@/lib/analytics";
 import { useHaptic } from "@/hooks/useHaptic";
 
 interface QuizProps {
@@ -54,6 +55,17 @@ export default function Quiz({ questions, onComplete, lessonId }: QuizProps) {
       lessonId,
       stepIndex: currentIndex,
     });
+
+    if (lessonId) {
+      void trackEvent({
+        lesson_id: lessonId,
+        step_type: "quiz_answer",
+        step_index: currentIndex,
+        answer: optionId,
+        correct: correct ? 1 : 0,
+        response_time_ms: responseTimeMs,
+      });
+    }
 
     const delay = correct ? 1200 : 2000;
     setTimeout(() => {

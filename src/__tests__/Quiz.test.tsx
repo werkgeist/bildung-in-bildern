@@ -2,9 +2,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import Quiz from "@/components/Quiz";
 import type { QuizQuestion } from "@/types/lesson";
+import { trackEvent } from "@/lib/analytics";
 
 vi.mock("@/lib/logging", () => ({
   logAnswer: vi.fn(),
+}));
+
+vi.mock("@/lib/analytics", () => ({
+  trackEvent: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/hooks/useHaptic", () => ({
@@ -172,5 +177,39 @@ describe("Quiz", () => {
     await act(async () => { vi.advanceTimersByTime(1200); });
 
     expect(onComplete).toHaveBeenCalledWith(2);
+  });
+
+  it("calls trackEvent with quiz_answer on correct selection when lessonId is provided", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} lessonId="test-lesson" />);
+    fireEvent.click(screen.getByLabelText("Die Raupe"));
+    expect(trackEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lesson_id: "test-lesson",
+        step_type: "quiz_answer",
+        step_index: 0,
+        answer: "q1-raupe",
+        correct: 1,
+      })
+    );
+  });
+
+  it("calls trackEvent with correct: 0 on wrong selection", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} lessonId="test-lesson" />);
+    fireEvent.click(screen.getByLabelText("Der Schmetterling"));
+    expect(trackEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lesson_id: "test-lesson",
+        step_type: "quiz_answer",
+        answer: "q1-schmetterling",
+        correct: 0,
+      })
+    );
+  });
+
+  it("does not call trackEvent when lessonId is not provided", () => {
+    vi.mocked(trackEvent).mockClear();
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText("Die Raupe"));
+    expect(trackEvent).not.toHaveBeenCalled();
   });
 });
