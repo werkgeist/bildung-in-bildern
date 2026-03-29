@@ -1,10 +1,14 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import Quiz from "@/components/Quiz";
 import type { QuizQuestion } from "@/types/lesson";
 
 vi.mock("@/lib/logging", () => ({
   logAnswer: vi.fn(),
+}));
+
+vi.mock("@/hooks/useHaptic", () => ({
+  useHaptic: () => ({ correct: vi.fn(), incorrect: vi.fn() }),
 }));
 
 const questions: QuizQuestion[] = [
@@ -30,6 +34,14 @@ const questions: QuizQuestion[] = [
   },
 ];
 
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe("Quiz", () => {
   it("renders the question text", () => {
     render(<Quiz questions={questions} onComplete={vi.fn()} />);
@@ -48,35 +60,69 @@ describe("Quiz", () => {
     expect(screen.getByText("Frage 1 von 2")).toBeDefined();
   });
 
-  it("handles correct answer selection", async () => {
-    vi.useFakeTimers();
+  it("handles correct answer selection", () => {
     render(<Quiz questions={questions} onComplete={vi.fn()} />);
     const correctBtn = screen.getByLabelText("Die Raupe");
     fireEvent.click(correctBtn);
     expect(correctBtn.getAttribute("aria-pressed")).toBe("true");
-    vi.useRealTimers();
   });
 
   it("handles incorrect answer selection", () => {
-    vi.useFakeTimers();
     render(<Quiz questions={questions} onComplete={vi.fn()} />);
     const wrongBtn = screen.getByLabelText("Der Schmetterling");
     fireEvent.click(wrongBtn);
     expect(wrongBtn.getAttribute("aria-pressed")).toBe("true");
-    vi.useRealTimers();
   });
 
   it("disables options after selection", () => {
-    vi.useFakeTimers();
     render(<Quiz questions={questions} onComplete={vi.fn()} />);
     fireEvent.click(screen.getByLabelText("Die Raupe"));
     const buttons = screen.getAllByRole("button") as HTMLButtonElement[];
     expect(buttons.every((b) => b.disabled)).toBe(true);
-    vi.useRealTimers();
+  });
+
+  it("correct answer button gets green border class", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    const correctBtn = screen.getByLabelText("Die Raupe");
+    fireEvent.click(correctBtn);
+    expect(correctBtn.className).toContain("border-green-500");
+  });
+
+  it("incorrect answer button does not get red border class", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    const wrongBtn = screen.getByLabelText("Der Schmetterling");
+    fireEvent.click(wrongBtn);
+    expect(wrongBtn.className).not.toContain("border-red");
+  });
+
+  it("correct answer shown with green border when wrong answer selected", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText("Der Schmetterling"));
+    const correctBtn = screen.getByLabelText("Die Raupe");
+    expect(correctBtn.className).toContain("border-green-500");
+  });
+
+  it("advances to next question after 1200ms on correct answer", async () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText("Die Raupe"));
+    await act(async () => { vi.advanceTimersByTime(1200); });
+    expect(screen.getByText("Frage 2 von 2")).toBeDefined();
+  });
+
+  it("advances to next question after 2000ms on incorrect answer", async () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText("Der Schmetterling"));
+
+    // Should NOT advance at 1200ms
+    await act(async () => { vi.advanceTimersByTime(1200); });
+    expect(screen.getByText("Frage 1 von 2")).toBeDefined();
+
+    // Should advance at 2000ms
+    await act(async () => { vi.advanceTimersByTime(800); });
+    expect(screen.getByText("Frage 2 von 2")).toBeDefined();
   });
 
   it("calls onComplete with score after all questions answered", async () => {
-    vi.useFakeTimers();
     const onComplete = vi.fn();
     render(<Quiz questions={questions} onComplete={onComplete} />);
 
@@ -87,6 +133,5 @@ describe("Quiz", () => {
     await act(async () => { vi.advanceTimersByTime(1200); });
 
     expect(onComplete).toHaveBeenCalledWith(2);
-    vi.useRealTimers();
   });
 });

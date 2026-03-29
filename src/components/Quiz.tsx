@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import type { QuizQuestion } from "@/types/lesson";
 import { logAnswer } from "@/lib/logging";
+import { useHaptic } from "@/hooks/useHaptic";
 
 interface QuizProps {
   questions: QuizQuestion[];
@@ -17,6 +18,7 @@ export default function Quiz({ questions, onComplete, lessonId }: QuizProps) {
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [score, setScore] = useState(0);
   const startTimeRef = useRef<number>(Date.now());
+  const haptic = useHaptic();
 
   const question = questions[currentIndex];
 
@@ -37,6 +39,12 @@ export default function Quiz({ questions, onComplete, lessonId }: QuizProps) {
     setIsCorrect(correct);
     setScore(newScore);
 
+    if (correct) {
+      haptic.correct();
+    } else {
+      haptic.incorrect();
+    }
+
     logAnswer({
       timestamp: new Date().toISOString(),
       questionId: question.id,
@@ -47,13 +55,14 @@ export default function Quiz({ questions, onComplete, lessonId }: QuizProps) {
       stepIndex: currentIndex,
     });
 
+    const delay = correct ? 1200 : 2000;
     setTimeout(() => {
       if (currentIndex < questions.length - 1) {
         setCurrentIndex((i) => i + 1);
       } else {
         onComplete(newScore);
       }
-    }, 1200);
+    }, delay);
   };
 
   return (
@@ -69,20 +78,26 @@ export default function Quiz({ questions, onComplete, lessonId }: QuizProps) {
         {question.options.map((option) => {
           const isSelected = selected === option.id;
           const isThisCorrect = option.id === question.correctOptionId;
+          const showFeedback = selected !== null;
 
+          // Selected correct: green border
+          // Selected incorrect: amber shadow
+          // Correct answer when wrong was chosen: green border + pulse
           let borderClass = "border-2 border-transparent";
-          let shakeClass = "";
+          let shadowClass = "";
+          let pulseClass = "";
 
-          if (isSelected) {
-            if (isCorrect) {
+          if (showFeedback) {
+            if (isSelected && isCorrect) {
               borderClass = "border-4 border-green-500";
-            } else {
-              borderClass = "border-4 border-red-500";
-              shakeClass = "animate-shake";
+            } else if (isSelected && !isCorrect) {
+              shadowClass = "shadow-[0_0_0_4px_rgba(251,191,36,0.7)]";
             }
-          }
-          if (selected !== null && !isCorrect && isThisCorrect) {
-            borderClass = "border-4 border-green-500";
+
+            if (!isCorrect && isThisCorrect) {
+              borderClass = "border-4 border-green-500";
+              pulseClass = "animate-correct-pulse";
+            }
           }
 
           return (
@@ -92,7 +107,7 @@ export default function Quiz({ questions, onComplete, lessonId }: QuizProps) {
               disabled={selected !== null}
               aria-label={option.label}
               aria-pressed={isSelected}
-              className={`relative aspect-square rounded-xl overflow-hidden bg-amber-50 ${borderClass} ${shakeClass} transition-all active:scale-95 focus:outline-none`}
+              className={`relative aspect-square rounded-xl overflow-hidden bg-amber-50 ${borderClass} ${shadowClass} ${pulseClass} transition-all active:scale-95 focus:outline-none`}
             >
               <Image
                 src={option.imageSrc}

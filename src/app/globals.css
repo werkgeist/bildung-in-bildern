@@ -18,12 +18,17 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-8px); }
-  75% { transform: translateX(8px); }
+@keyframes correct-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  50% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.35); }
 }
 
-.animate-shake {
-  animation: shake 0.4s ease-in-out;
+.animate-correct-pulse {
+  animation: correct-pulse 0.9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-correct-pulse {
+    animation: none;
+  }
 }
