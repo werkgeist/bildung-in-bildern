@@ -11,14 +11,22 @@ interface Env {
   DB: D1Database;
 }
 
+const MAX_SESSION_ID = 128;
+const MAX_LESSON_ID = 128;
+const MAX_ANSWER = 256;
+
 export function validateBody(body: unknown): { error: string } | null {
   if (!body || typeof body !== "object") return { error: "Invalid body" };
   const b = body as Record<string, unknown>;
 
   if (!b.session_id || typeof b.session_id !== "string")
     return { error: "session_id required" };
+  if (b.session_id.length > MAX_SESSION_ID)
+    return { error: `session_id max ${MAX_SESSION_ID} chars` };
   if (!b.lesson_id || typeof b.lesson_id !== "string")
     return { error: "lesson_id required" };
+  if (b.lesson_id.length > MAX_LESSON_ID)
+    return { error: `lesson_id max ${MAX_LESSON_ID} chars` };
   if (b.step_type !== "sequence_view" && b.step_type !== "quiz_answer")
     return { error: "invalid step_type" };
   if (
@@ -27,6 +35,18 @@ export function validateBody(body: unknown): { error: string } | null {
     b.step_index < 0
   )
     return { error: "step_index must be non-negative integer" };
+
+  if (b.answer !== undefined) {
+    if (typeof b.answer !== "string")
+      return { error: "answer must be a string" };
+    if (b.answer.length > MAX_ANSWER)
+      return { error: `answer max ${MAX_ANSWER} chars` };
+  }
+
+  if (b.response_time_ms !== undefined) {
+    if (typeof b.response_time_ms !== "number" || b.response_time_ms < 0)
+      return { error: "response_time_ms must be non-negative number" };
+  }
 
   return null;
 }
@@ -54,6 +74,13 @@ export async function handleTrack(
   }
 
   const b = body as Record<string, unknown>;
+
+  // Dryrun: event is validated but intentionally not written to DB
+  // NOTE: is_dryrun is client-controlled; server-side auth is tracked in #2
+  if (b.is_dryrun === 1) {
+    return new Response(null, { status: 201 });
+  }
+
   await db
     .prepare(
       `INSERT INTO events (session_id, username, lesson_id, step_type, step_index, answer, correct, response_time_ms, is_dryrun)
@@ -68,7 +95,7 @@ export async function handleTrack(
       b.answer ?? null,
       b.correct ?? null,
       b.response_time_ms ?? null,
-      b.is_dryrun ?? 0
+      0
     )
     .run();
 
@@ -79,5 +106,11 @@ export const onRequestPost = async (context: {
   request: Request;
   env: Env;
 }): Promise<Response> => {
+  if (!context.env?.DB) {
+    return new Response(JSON.stringify({ error: "Database not configured" }), {
+      status: 503,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
   return handleTrack(context.request, context.env.DB);
 };

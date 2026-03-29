@@ -1,13 +1,22 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import SequenceViewer from "@/components/SequenceViewer";
 import type { LessonImage } from "@/types/lesson";
+import { trackEvent } from "@/lib/analytics";
+
+vi.mock("@/lib/analytics", () => ({
+  trackEvent: vi.fn().mockResolvedValue(undefined),
+}));
 
 const sequence: LessonImage[] = [
   { id: "ei", src: "/images/01-ei.webp", label: "Das Ei", alt: "Ein Ei" },
   { id: "raupe", src: "/images/02-raupe.webp", label: "Die Raupe", alt: "Eine Raupe" },
   { id: "puppe", src: "/images/03-puppe.webp", label: "Die Puppe", alt: "Eine Puppe" },
 ];
+
+beforeEach(() => {
+  vi.mocked(trackEvent).mockClear();
+});
 
 describe("SequenceViewer", () => {
   it("renders the first image and label", () => {
@@ -56,5 +65,34 @@ describe("SequenceViewer", () => {
     const tabs = screen.getAllByRole("tab");
     expect(tabs[0].getAttribute("aria-selected")).toBe("true");
     expect(tabs[1].getAttribute("aria-selected")).toBe("false");
+  });
+
+  it("calls trackEvent with sequence_view on mount when lessonId provided", () => {
+    render(<SequenceViewer sequence={sequence} onComplete={vi.fn()} lessonId="schmetterling" />);
+    expect(trackEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lesson_id: "schmetterling",
+        step_type: "sequence_view",
+        step_index: 0,
+      })
+    );
+  });
+
+  it("calls trackEvent with updated step_index on navigation", () => {
+    render(<SequenceViewer sequence={sequence} onComplete={vi.fn()} lessonId="schmetterling" />);
+    vi.mocked(trackEvent).mockClear();
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    expect(trackEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lesson_id: "schmetterling",
+        step_type: "sequence_view",
+        step_index: 1,
+      })
+    );
+  });
+
+  it("does not call trackEvent when lessonId is not provided", () => {
+    render(<SequenceViewer sequence={sequence} onComplete={vi.fn()} />);
+    expect(trackEvent).not.toHaveBeenCalled();
   });
 });

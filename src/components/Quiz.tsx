@@ -108,7 +108,7 @@ export default function Quiz({ questions, onComplete, lessonId }: QuizProps) {
 
             if (!isCorrect && isThisCorrect) {
               borderClass = "border-4 border-green-500";
-              pulseClass = "animate-correct-pulse";
+              pulseClass = "animate-correct-pulse motion-reduce:animate-none";
             }
           }
 
@@ -119,7 +119,7 @@ export default function Quiz({ questions, onComplete, lessonId }: QuizProps) {
               disabled={selected !== null}
               aria-label={option.label}
               aria-pressed={isSelected}
-              className={`relative aspect-square rounded-xl overflow-hidden bg-amber-50 ${borderClass} ${shadowClass} ${pulseClass} transition-all active:scale-95 focus:outline-none`}
+              className={`relative aspect-square rounded-xl overflow-hidden bg-amber-50 ${borderClass} ${shadowClass} ${pulseClass} transition-all active:scale-95 focus-visible:ring-[3px] focus-visible:ring-amber-500 focus-visible:ring-offset-2`}
             >
               <Image
                 src={option.imageSrc}

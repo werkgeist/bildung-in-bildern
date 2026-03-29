@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { validateBody, handleTrack } from "../../functions/api/track";
+import { validateBody, handleTrack, onRequestPost } from "../../functions/api/track";
 
 const validBody = {
   session_id: "sess-abc123",
@@ -85,6 +85,40 @@ describe("validateBody", () => {
   it("rejects null body", () => {
     expect(validateBody(null)).toMatchObject({ error: expect.any(String) });
   });
+
+  it("rejects session_id longer than 128 chars", () => {
+    expect(validateBody({ ...validBody, session_id: "a".repeat(129) })).toMatchObject({
+      error: expect.stringContaining("session_id"),
+    });
+  });
+
+  it("rejects lesson_id longer than 128 chars", () => {
+    expect(validateBody({ ...validBody, lesson_id: "b".repeat(129) })).toMatchObject({
+      error: expect.stringContaining("lesson_id"),
+    });
+  });
+
+  it("rejects answer longer than 256 chars", () => {
+    expect(validateBody({ ...validBody, answer: "c".repeat(257) })).toMatchObject({
+      error: expect.stringContaining("answer"),
+    });
+  });
+
+  it("rejects answer that is not a string", () => {
+    expect(validateBody({ ...validBody, answer: 42 })).toMatchObject({
+      error: expect.stringContaining("answer"),
+    });
+  });
+
+  it("rejects negative response_time_ms", () => {
+    expect(validateBody({ ...validBody, response_time_ms: -1 })).toMatchObject({
+      error: expect.stringContaining("response_time_ms"),
+    });
+  });
+
+  it("accepts response_time_ms of 0", () => {
+    expect(validateBody({ ...validBody, response_time_ms: 0 })).toBeNull();
+  });
 });
 
 // ----- handleTrack -----
@@ -168,14 +202,14 @@ describe("handleTrack", () => {
     );
   });
 
-  it("passes is_dryrun: 1 when provided", async () => {
-    const { db, stmt } = makeDb();
-    await handleTrack(
+  it("skips DB insert and returns 201 when is_dryrun is 1", async () => {
+    const { db } = makeDb();
+    const res = await handleTrack(
       makeRequest({ ...validBody, is_dryrun: 1 }),
       db as never
     );
-    const bindArgs = stmt.bind.mock.calls[0];
-    expect(bindArgs[8]).toBe(1); // is_dryrun is 9th positional arg (index 8)
+    expect(res.status).toBe(201);
+    expect(db.prepare).not.toHaveBeenCalled();
   });
 
   it("response body is empty for 201", async () => {
@@ -183,5 +217,19 @@ describe("handleTrack", () => {
     const res = await handleTrack(makeRequest(validBody), db as never);
     const text = await res.text();
     expect(text).toBe("");
+  });
+});
+
+// ----- onRequestPost -----
+
+describe("onRequestPost", () => {
+  it("returns 503 when DB binding is missing", async () => {
+    const res = await onRequestPost({
+      request: makeRequest(validBody),
+      env: {} as never,
+    });
+    expect(res.status).toBe(503);
+    const json = await res.json() as { error: string };
+    expect(json.error).toContain("Database");
   });
 });

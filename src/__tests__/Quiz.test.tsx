@@ -162,7 +162,8 @@ describe("Quiz", () => {
     fireEvent.click(screen.getByLabelText("Der Schmetterling"));
     const buttons = screen.getAllByRole("button");
     buttons.forEach((btn) => {
-      expect(btn.className).not.toMatch(/red/);
+      // Check for red color utility classes, not substrings like "motion-reduce"
+      expect(btn.className).not.toMatch(/(?:text|bg|border|ring|shadow)-red/);
     });
   });
 
