@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { allLessons } from "@/data/lessons";
 import type { Lesson } from "@/types/lesson";
+import ProgressBadge from "@/components/ProgressBadge";
 
 function DifficultyStars({ level }: { level?: 1 | 2 | 3 }) {
   const filled = level ?? 1;
@@ -42,6 +43,7 @@ function LessonCard({ lesson }: { lesson: Lesson }) {
             ?
           </div>
         )}
+        <ProgressBadge lessonId={lesson.id} />
       </div>
       <div className="flex flex-col gap-1 p-3 min-h-[80px] justify-center">
         <p className="text-base font-bold text-amber-800 leading-tight line-clamp-2">
