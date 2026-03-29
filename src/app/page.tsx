@@ -4,6 +4,22 @@ import { allLessons } from "@/data/lessons";
 import type { Lesson } from "@/types/lesson";
 import ProgressBadge from "@/components/ProgressBadge";
 
+function ProgressLink() {
+  return (
+    <Link
+      href="/fortschritt"
+      className="flex items-center justify-center w-12 h-12 rounded-full bg-amber-50 active:bg-amber-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 focus-visible:ring-offset-2 transition-colors"
+      aria-label="Mein Fortschritt"
+    >
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+        <rect x="2" y="14" width="4" height="6" rx="1" fill="#d97706" />
+        <rect x="9" y="9" width="4" height="11" rx="1" fill="#f59e0b" />
+        <rect x="16" y="4" width="4" height="16" rx="1" fill="#fbbf24" />
+      </svg>
+    </Link>
+  );
+}
+
 function DifficultyStars({ level }: { level?: 1 | 2 | 3 }) {
   const filled = level ?? 1;
   return (
@@ -60,6 +76,9 @@ export default function Home() {
 
   return (
     <main className="flex flex-col items-center min-h-screen bg-white px-4 py-10">
+      <div className="w-full max-w-2xl flex justify-end mb-2">
+        <ProgressLink />
+      </div>
       <h1 className="text-4xl font-bold text-amber-700 mb-2 text-center">
         Bildung in Bildern
       </h1>
