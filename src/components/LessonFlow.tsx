@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Lesson } from "@/types/lesson";
 import SequenceViewer from "./SequenceViewer";
 import Quiz from "./Quiz";
+import { markComplete } from "@/hooks/useProgress";
 
 interface LessonFlowProps {
   lesson: Lesson;
@@ -20,6 +21,8 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
 
   const handleQuizComplete = (score: number) => {
     setFinalScore(score);
+    const normalizedScore = lesson.questions.length > 0 ? score / lesson.questions.length : 0;
+    markComplete(lesson.id, normalizedScore);
     setPhase("result");
   };
 
