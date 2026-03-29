@@ -4,12 +4,16 @@
 #
 # Usage: bash scripts/agents/test.sh <issue_number> <item_id>
 
+# SECURITY: closed-trust-boundary — nur Repo-Maintainer können Issues erstellen.
 source "$(dirname "$0")/_common.sh"
 
 AGENT_NAME="Test"
 log "[$AGENT_NAME] Starte Tests für Issue #$ISSUE_NUMBER (Item: $ITEM_ID)"
 
+# B3: Nach worktree-merge im clean main arbeiten
 cd "$WORKSPACE"
+git fetch origin main --quiet 2>/dev/null || true
+git merge --ff-only origin/main 2>/dev/null || git reset --hard origin/main
 
 TEST_OUTPUT=""
 BUILD_OUTPUT=""

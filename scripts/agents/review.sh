@@ -4,6 +4,9 @@
 #
 # Usage: bash scripts/agents/review.sh <issue_number> <item_id>
 
+# SECURITY: closed-trust-boundary — nur Repo-Maintainer können Issues erstellen.
+# Issue-Body und Diff werden in den Prompt eingebettet (kein --yolo).
+# Risiko akzeptiert für closed repo.
 source "$(dirname "$0")/_common.sh"
 
 AGENT_NAME="Codex"
@@ -12,31 +15,20 @@ log "[$AGENT_NAME] Starte Code Review für Issue #$ISSUE_NUMBER (Item: $ITEM_ID)
 TITLE=$(gh_issue_title)
 BODY=$(gh_issue_body)
 
+# B3: Nach worktree-merge im clean main arbeiten
 cd "$WORKSPACE"
+git fetch origin main --quiet 2>/dev/null || true
+git merge --ff-only origin/main 2>/dev/null || git reset --hard origin/main
 
-# B3: Sauberen, aktuellen Stand sicherstellen
-git fetch origin
-
-# B3: Workspace-Isolation via git stash (Review ist read-only, kein Worktree nötig)
-STASH_MSG=$(git stash --include-untracked 2>&1 || true)
-if echo "$STASH_MSG" | grep -q "Saved"; then
-  STASHED=1
-else
-  STASHED=0
-fi
-
-# M3: Trust Boundary — Issue-Body und Diff in Dateien schreiben, NICHT inline in Prompt.
-# Attacker-controlled content wird als Datei übergeben, nicht als Prompt-Instruktion.
-# Hinweis: Vollständige Prompt-Injection-Resistenz erfordert Output-Filtering; dies ist
-# defensive Härtung (reduziert Angriffsfläche bei Modellen die Datei-Quellen anders gewichten).
 REVIEW_SPEC_FILE="/tmp/review-spec-${ISSUE_NUMBER}.md"
 REVIEW_DIFF_FILE="/tmp/review-diff-${ISSUE_NUMBER}.patch"
 
-trap '[[ ${STASHED:-0} -eq 1 ]] && git -C "$WORKSPACE" stash pop 2>/dev/null || true; gh_unlock; rm -f "$REVIEW_SPEC_FILE" "$REVIEW_DIFF_FILE"' EXIT
+trap 'gh_unlock; rm -f "$REVIEW_SPEC_FILE" "$REVIEW_DIFF_FILE"' EXIT
 
-# Ermittle den Diff seit main
-DIFF=$(git diff origin/main...HEAD -- '*.ts' '*.tsx' '*.mjs' '*.mts' '*.css' '*.json' '*.config.*' 2>/dev/null | head -2000)
-COMMIT_LOG=$(git log --oneline origin/main...HEAD 2>/dev/null | head -10)
+# Ermittle den Diff des letzten Commits (implement.sh merged Branch → main und pushed).
+# HEAD~1..HEAD zeigt was der letzte Commit (inkl. Merge-Commit) geändert hat.
+DIFF=$(git diff HEAD~1..HEAD -- '*.ts' '*.tsx' '*.mjs' '*.mts' '*.css' '*.json' '*.config.*' 2>/dev/null | head -2000)
+COMMIT_LOG=$(git log --oneline -5 2>/dev/null | head -10)
 
 if [[ -z "$DIFF" ]]; then
   log "[$AGENT_NAME] Kein Diff gefunden — nichts zu reviewen"
@@ -83,19 +75,12 @@ FINDINGS:
 - <Befund 2>
 (leer wenn keine Befunde)"
 
-log "[$AGENT_NAME] Rufe Codex auf..."
-# B2: set +e damit EXIT_CODE korrekt erfasst wird
-# M3: GH_TOKEN aus Agent-Env entfernen
+# M3: kein --full-auto / --yolo — Review-Agent gibt nur strukturierte Empfehlung zurück,
+# führt keine autonomen Datei-Änderungen durch. GH_TOKEN nicht im Agent-Env.
+log "[$AGENT_NAME] Rufe Claude auf..."
 set +e
-REVIEW=$(timeout 1800 env -u GH_TOKEN codex exec --full-auto "$PROMPT" 2>/dev/null)
-CODEX_EXIT=$?
+REVIEW=$(timeout 1800 env -u GH_TOKEN claude --permission-mode bypassPermissions --print "$PROMPT" 2>/dev/null)
 set -e
-if [[ $CODEX_EXIT -ne 0 ]]; then
-  log "[$AGENT_NAME] Codex fehlgeschlagen oder nicht verfügbar — Fallback auf Claude."
-  set +e
-  REVIEW=$(timeout 1800 env -u GH_TOKEN claude --print "$PROMPT" 2>/dev/null)
-  set -e
-fi
 
 DECISION=$(echo "$REVIEW" | grep '^DECISION:' | cut -d' ' -f2- | tr -d '[:space:]')
 SUMMARY=$(echo "$REVIEW" | grep '^SUMMARY:' | cut -d' ' -f2-)

@@ -4,6 +4,10 @@
 #
 # Usage: bash scripts/agents/implement.sh <issue_number> <item_id>
 
+# SECURITY: closed-trust-boundary — nur Repo-Maintainer können Issues erstellen.
+# Issue-Body/Kommentare werden in eine separate Datei ausgelagert, nicht inline
+# im Prompt. Das reduziert Shell-Injection-Risiken, schützt aber nicht vollständig
+# vor Prompt-Injection (der Agent liest die Datei). Risiko akzeptiert für closed repo.
 source "$(dirname "$0")/_common.sh"
 
 AGENT_NAME="Claude Code"
