@@ -13,21 +13,22 @@ TITLE=$(gh_issue_title)
 BODY=$(gh_issue_body)
 COMMENTS=$(gh_issue_comments 10)
 
-# Baue Implementierungs-Prompt
+# Issue-Body in Datei schreiben — verhindert Prompt-Injection via Issue-Inhalt
+ISSUE_FILE="/tmp/issue-${ISSUE_NUMBER}.md"
+{
+  printf '# Issue #%s: %s\n\n' "$ISSUE_NUMBER" "$TITLE"
+  printf '## Anforderungen\n\n%s\n\n' "$BODY"
+  printf '## Kontext aus vorherigen Kommentaren\n\n%s\n' "$COMMENTS"
+} > "$ISSUE_FILE"
+trap 'gh_unlock; rm -f "$ISSUE_FILE"' EXIT
+
+# Baue Implementierungs-Prompt (Issue-Body NICHT inline — kein Prompt-Injection-Risiko)
 PROMPT="Du bist ein Senior TypeScript/React Entwickler für das Projekt 'Bildung in Bildern' (BiB).
 Stack: Next.js 16, TypeScript, Tailwind CSS v4, shadcn/ui.
 Zielgruppe: Kyrill (22J, nonverbal, Autismus Level 2-3). Touch-only iPad-App.
 Arbeitsverzeichnis: ${WORKSPACE}
 
-Implementiere das folgende GitHub Issue vollständig:
-
-Issue #${ISSUE_NUMBER}: ${TITLE}
-
-Anforderungen:
-${BODY}
-
-Kontext aus vorherigen Kommentaren:
-${COMMENTS}
+Lies die vollständige Aufgabenbeschreibung aus: ${ISSUE_FILE}
 
 Wichtige Regeln:
 - Conventional Commits: feat:, fix:, docs:, test:
@@ -42,11 +43,11 @@ Führe 'git push' am Ende aus."
 log "[$AGENT_NAME] Starte Claude Code Implementierung..."
 cd "$WORKSPACE"
 
-IMPLEMENTATION_LOG=$(claude --permission-mode bypassPermissions --print "$PROMPT" 2>&1)
+IMPLEMENTATION_LOG=$(timeout 1800 claude --permission-mode bypassPermissions --print "$PROMPT" 2>&1)
 EXIT_CODE=$?
 
 # Ermittle was sich geändert hat
-CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | head -20 || echo "(keine neuen Commits)")
+CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null | head -20 || echo "(keine neuen Commits)")
 LAST_COMMIT=$(git log --oneline -1 2>/dev/null || echo "kein Commit")
 
 if [[ $EXIT_CODE -eq 0 ]]; then

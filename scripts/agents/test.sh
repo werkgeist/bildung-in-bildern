@@ -54,8 +54,8 @@ else
   BUILD_EXCERPT=$(echo "$BUILD_OUTPUT" | grep -E 'error|Error|failed' | head -20 || echo "(kein Fehleroutput)")
 
   STATUS_ICONS=""
-  $TEST_OK  && STATUS_ICONS+="**pnpm test:** ✅\n" || STATUS_ICONS+="**pnpm test:** ❌\n"
-  $BUILD_OK && STATUS_ICONS+="**pnpm build:** ✅\n" || STATUS_ICONS+="**pnpm build:** ❌\n"
+  $TEST_OK  && STATUS_ICONS+="**pnpm test:** ✅"$'\n' || STATUS_ICONS+="**pnpm test:** ❌"$'\n'
+  $BUILD_OK && STATUS_ICONS+="**pnpm build:** ✅"$'\n' || STATUS_ICONS+="**pnpm build:** ❌"$'\n'
 
   COMMENT="**[Test]** Tests fehlgeschlagen ❌
 

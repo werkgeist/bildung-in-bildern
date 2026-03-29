@@ -64,8 +64,8 @@ FINDINGS:
 (leer wenn keine Befunde)"
 
 log "[$AGENT_NAME] Rufe Codex auf..."
-REVIEW=$(codex exec --full-auto "$PROMPT" 2>/dev/null) || \
-REVIEW=$(claude --permission-mode bypassPermissions --print "$PROMPT" 2>/dev/null)
+REVIEW=$(timeout 900 codex exec --full-auto "$PROMPT" 2>/dev/null) || \
+REVIEW=$(timeout 900 claude --permission-mode bypassPermissions --print "$PROMPT" 2>/dev/null)
 
 DECISION=$(echo "$REVIEW" | grep '^DECISION:' | cut -d' ' -f2- | tr -d '[:space:]')
 SUMMARY=$(echo "$REVIEW" | grep '^SUMMARY:' | cut -d' ' -f2-)

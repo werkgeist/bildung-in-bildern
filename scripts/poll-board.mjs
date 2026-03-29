@@ -11,7 +11,7 @@
  */
 
 import { execSync, spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,6 +23,46 @@ const VERBOSE = process.env.VERBOSE === '1';
 
 const ENV_FILE = resolve(__dir, 'bib-board.env');
 const STATE_FILE = '/tmp/bib-poll-state.json';
+const LOCK_FILE = '/tmp/bib-poller.lock';
+
+// ── PID Lockfile (verhindert parallele Poller-Instanzen) ─────────────────────
+
+function acquireLock() {
+  try {
+    // flag 'wx' = O_WRONLY | O_CREAT | O_EXCL — atomar, schlägt fehl wenn Datei existiert
+    writeFileSync(LOCK_FILE, String(process.pid), { flag: 'wx' });
+  } catch (e) {
+    if (e.code === 'EEXIST') {
+      let stalePid = '';
+      try { stalePid = readFileSync(LOCK_FILE, 'utf-8').trim(); } catch { /* ignore */ }
+      if (stalePid) {
+        try {
+          process.kill(Number(stalePid), 0); // wirft wenn Prozess nicht existiert
+          log(`Poller läuft bereits (PID ${stalePid}). Beende.`);
+          process.exit(0);
+        } catch {
+          warn(`Veraltetes Lockfile gefunden (PID ${stalePid}). Entferne und starte neu.`);
+          try { unlinkSync(LOCK_FILE); } catch { /* ignore */ }
+          acquireLock();
+        }
+      } else {
+        try { unlinkSync(LOCK_FILE); } catch { /* ignore */ }
+        acquireLock();
+      }
+    } else {
+      throw e;
+    }
+  }
+}
+
+function releaseLock() {
+  try { unlinkSync(LOCK_FILE); } catch { /* ignore */ }
+}
+
+// Cleanup bei Exit/Signals
+process.on('exit', releaseLock);
+process.on('SIGINT', () => { releaseLock(); process.exit(130); });
+process.on('SIGTERM', () => { releaseLock(); process.exit(143); });
 
 function loadEnv(filePath) {
   const env = {};
@@ -113,7 +153,7 @@ query($boardId: ID!) {
               state
               body
               url
-              labels(first: 10) {
+              labels(first: 20) {
                 nodes { name }
               }
               comments(last: 5) {
@@ -161,7 +201,7 @@ function isLocked(issue) {
 
 function lockTimedOut(issueNumber, state) {
   const entry = state[`lock_${issueNumber}`];
-  if (!entry) return true; // no local record → treat as timed out
+  if (!entry) return false; // kein lokaler Eintrag (z.B. nach Reboot) → nicht als Timeout werten
   const ageMin = (Date.now() - new Date(entry).getTime()) / 60000;
   return ageMin > Number(CFG.LOCK_TIMEOUT_MINUTES);
 }
@@ -255,6 +295,9 @@ async function poll() {
   }
 
   log(`${items.length} Items auf dem Board gefunden.`);
+  if (items.length === 50) {
+    warn('Board-Limit erreicht (50 Items) — Items jenseits von 50 werden nicht verarbeitet. Pagination fehlt.');
+  }
 
   let dispatched = 0;
   let skipped = 0;
@@ -290,8 +333,14 @@ async function poll() {
     log(`#${issue.number} [${status}]: "${issue.title}" → dispatch [${agent}]`);
 
     if (!DRYRUN) {
-      addLockLabel(issue.number);
-      recordLock(issue.number, state);
+      try {
+        addLockLabel(issue.number);
+        recordLock(issue.number, state);
+      } catch (e) {
+        warn(`#${issue.number}: Lock-Label konnte nicht gesetzt werden — übersprungen: ${e.message}`);
+        skipped++;
+        continue;
+      }
     }
 
     dispatchAgent(agent, issue.number, item.id);
@@ -301,6 +350,7 @@ async function poll() {
   log(`Poll abgeschlossen: ${dispatched} dispatched, ${locked} locked, ${skipped} skipped.`);
 }
 
+acquireLock();
 poll().catch((e) => {
   console.error(`[FATAL] ${e.message}`);
   process.exit(1);

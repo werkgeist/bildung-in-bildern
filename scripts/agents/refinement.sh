@@ -13,7 +13,16 @@ TITLE=$(gh_issue_title)
 BODY=$(gh_issue_body)
 COMMENTS=$(gh_issue_comments 5)
 
-# Baue Kontext für Claude
+# Issue-Body in Datei schreiben — verhindert Prompt-Injection via Issue-Inhalt
+ISSUE_FILE="/tmp/issue-${ISSUE_NUMBER}.md"
+{
+  printf '# Issue #%s: %s\n\n' "$ISSUE_NUMBER" "$TITLE"
+  printf '## Body\n\n%s\n\n' "$BODY"
+  printf '## Letzte Kommentare\n\n%s\n' "$COMMENTS"
+} > "$ISSUE_FILE"
+trap 'gh_unlock; rm -f "$ISSUE_FILE"' EXIT
+
+# Baue Kontext für Claude (Issue-Body NICHT inline — kein Prompt-Injection-Risiko)
 CONTEXT="Du bist ein Refinement-Agent für das Projekt 'Bildung in Bildern' (BiB).
 Deine Aufgabe: Prüfe ob das folgende GitHub Issue bereit für die Implementierung ist.
 
@@ -23,13 +32,7 @@ Definition of Ready (DoR):
 - [ ] Keine offenen Abhängigkeiten oder blockierende Fragen
 - [ ] Scope ist klar abgegrenzt (nicht zu groß für einen Commit)
 
-Issue #${ISSUE_NUMBER}: ${TITLE}
-
-Body:
-${BODY}
-
-Letzte Kommentare:
-${COMMENTS}
+Lies Issue #${ISSUE_NUMBER} und Kontext aus: ${ISSUE_FILE}
 
 Antworte AUSSCHLIESSLICH in diesem Format (kein Markdown, kein Preamble):
 
@@ -38,7 +41,7 @@ REASON: <ein Satz warum>
 QUESTIONS: <nur bei NOT_READY: konkrete Rückfragen, eine pro Zeile mit '- ' Präfix>"
 
 log "[$AGENT_NAME] Rufe Claude auf..."
-RESPONSE=$(claude --permission-mode bypassPermissions --print "$CONTEXT" 2>/dev/null)
+RESPONSE=$(timeout 600 claude --permission-mode bypassPermissions --print "$CONTEXT" 2>/dev/null)
 
 DECISION=$(echo "$RESPONSE" | grep '^DECISION:' | cut -d' ' -f2- | tr -d '[:space:]')
 REASON=$(echo "$RESPONSE" | grep '^REASON:' | cut -d' ' -f2-)

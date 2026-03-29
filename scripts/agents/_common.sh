@@ -64,7 +64,7 @@ gh_issue_body() {
 gh_issue_comments() {
   local n="${1:-10}"
   gh issue view "$ISSUE_NUMBER" --repo "$REPO" --json comments \
-    -q ".comments | last($n) | .[] | \"\\(.author.login): \\(.body)\""
+    -q ".comments[-${n}:][] | \"\\(.author.login): \\(.body)\""
 }
 
 # Get issue title
