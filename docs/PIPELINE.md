@@ -100,10 +100,13 @@ Prüft ob das Issue implementierbar ist (Definition of Ready):
 **Tool:** Claude Code (claude --permission-mode bypassPermissions --print)
 
 Implementiert das Issue vollständig:
-- Liest Issue-Body + Kommentare als Kontext
+- Erstellt isolierten Git-Worktree (`/tmp/bib-worktree-<N>`) auf Branch `issue-<N>` von `origin/main`
+- Liest Issue-Body + Kommentare als Kontext (aus Datei, nicht inline)
 - Folgt CLAUDE.md (WCAG 2.2 AA, Touch-Targets, etc.)
-- Commitiert und pusht mit Conventional Commits
-- Läuft `pnpm test` vor dem Commit
+- Commitiert mit Conventional Commits
+- Mergt Branch nach Erfolg zurück in Workspace-`main` und pushed
+- Cleanup: Worktree + Branch werden immer entfernt (via EXIT-Trap)
+- `GH_TOKEN` wird dem Claude-Prozess **nicht** übergeben (nur Shell-Wrapper)
 
 **Outcomes:**
 - ✅ Erfolg → verschiebt nach _Code Review_
@@ -114,9 +117,11 @@ Implementiert das Issue vollständig:
 **Tool:** Codex (codex exec --full-auto), Fallback: Claude
 
 Überprüft den Diff gegen `origin/main`:
+- `git stash` am Anfang (saubere Basis), `git stash pop` via EXIT-Trap
 - Spec-Compliance (Issue-Anforderungen erfüllt?)
 - Bugs, Typen-Fehler, Sicherheit
 - WCAG 2.2 AA, Performance, Conventional Commits
+- `GH_TOKEN` wird dem Agent-Prozess **nicht** übergeben
 
 **Outcomes:**
 - ✅ APPROVE → verschiebt nach _Testing_
@@ -138,6 +143,12 @@ Führt automatisierte Tests aus:
 - Issue ist geschlossen
 - Kein Agent
 
+## Poller-Verhalten
+
+- **Max. 1 Issue pro Poll-Lauf** (break nach erstem Dispatch, passt zu 15-Min-Cron)
+- **Cursor-Pagination** für Board-Items (kein Limit bei >50 Issues)
+- **Field-ID-Matching** für Status-Spalte (stabil gegen Feldnamen-Umbenennung)
+
 ## Lock-Mechanismus
 
 ### Ablauf
@@ -145,8 +156,8 @@ Führt automatisierte Tests aus:
 ```
 Poller: Issue in Ready → kein agent-working Label?
   → addLabel(agent-working)
-  → recordLock(issue_number, timestamp) in /tmp/bib-poll-state.json
-  → dispatch refinement.sh
+  → recordLock(issue_number, timestamp) in .pipeline-state.json
+  → dispatch refinement.sh (break — nur 1 pro Lauf)
 
 Agent startet:
   → trap EXIT: gh_unlock() entfernt agent-working Label automatisch

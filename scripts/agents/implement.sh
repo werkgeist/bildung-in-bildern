@@ -13,6 +13,10 @@ TITLE=$(gh_issue_title)
 BODY=$(gh_issue_body)
 COMMENTS=$(gh_issue_comments 10)
 
+# B3: Branch und Worktree-Pfad festlegen
+BRANCH="issue-${ISSUE_NUMBER}"
+WORKTREE="/tmp/bib-worktree-${ISSUE_NUMBER}"
+
 # Issue-Body in Datei schreiben — verhindert Prompt-Injection via Issue-Inhalt
 ISSUE_FILE="/tmp/issue-${ISSUE_NUMBER}.md"
 {
@@ -20,33 +24,44 @@ ISSUE_FILE="/tmp/issue-${ISSUE_NUMBER}.md"
   printf '## Anforderungen\n\n%s\n\n' "$BODY"
   printf '## Kontext aus vorherigen Kommentaren\n\n%s\n' "$COMMENTS"
 } > "$ISSUE_FILE"
-trap 'gh_unlock; rm -f "$ISSUE_FILE"' EXIT
+
+# Cleanup: Worktree + Branch + Lock + Temp-Datei entfernen
+trap 'git -C "$WORKSPACE" worktree remove --force "$WORKTREE" 2>/dev/null || true; git -C "$WORKSPACE" branch -D "$BRANCH" 2>/dev/null || true; gh_unlock; rm -f "$ISSUE_FILE"' EXIT
 
 # Baue Implementierungs-Prompt (Issue-Body NICHT inline — kein Prompt-Injection-Risiko)
 PROMPT="Du bist ein Senior TypeScript/React Entwickler für das Projekt 'Bildung in Bildern' (BiB).
 Stack: Next.js 16, TypeScript, Tailwind CSS v4, shadcn/ui.
 Zielgruppe: Kyrill (22J, nonverbal, Autismus Level 2-3). Touch-only iPad-App.
-Arbeitsverzeichnis: ${WORKSPACE}
+Arbeitsverzeichnis: ${WORKTREE}
 
 Lies die vollständige Aufgabenbeschreibung aus: ${ISSUE_FILE}
 
 Wichtige Regeln:
 - Conventional Commits: feat:, fix:, docs:, test:
 - Führe 'pnpm test' aus bevor du committest
-- Commitiere und pushe alle Änderungen
+- Commitiere alle Änderungen (kein git push — das übernimmt das Deploy-Script)
 - Bleibe im Scope des Issues — keine ungefragten Verbesserungen
 - WCAG 2.2 AA — Touch-Targets min. 44×44px, prefers-reduced-motion respektieren
-- Kommentiere deinen Plan kurz bevor du startest
+- Kommentiere deinen Plan kurz bevor du startest"
 
-Führe 'git push' am Ende aus."
-
-log "[$AGENT_NAME] Starte Claude Code Implementierung..."
-cd "$WORKSPACE"
+# B3: Isolierten Worktree erstellen (saubere Basis von origin/main)
+log "[$AGENT_NAME] Erstelle isolierten Worktree für Branch $BRANCH..."
+git -C "$WORKSPACE" fetch origin main
+git -C "$WORKSPACE" worktree remove --force "$WORKTREE" 2>/dev/null || true
+git -C "$WORKSPACE" branch -D "$BRANCH" 2>/dev/null || true
+git -C "$WORKSPACE" worktree add -b "$BRANCH" "$WORKTREE" origin/main
+cd "$WORKTREE"
+pnpm install --frozen-lockfile 2>&1 | tail -5
 
 HEAD_BEFORE=$(git rev-parse HEAD 2>/dev/null || echo "")
 
-IMPLEMENTATION_LOG=$(timeout 1800 claude --permission-mode bypassPermissions --print "$PROMPT" 2>&1)
+log "[$AGENT_NAME] Starte Claude Code Implementierung..."
+# B2: set +e damit EXIT_CODE korrekt erfasst wird — set -e würde Script beenden
+# M3: GH_TOKEN aus Claude-Env entfernen (Shell-Wrapper brauchen es, nicht der Agent)
+set +e
+IMPLEMENTATION_LOG=$(timeout 1800 env -u GH_TOKEN claude --permission-mode bypassPermissions --print "$PROMPT" 2>&1)
 EXIT_CODE=$?
+set -e
 
 HEAD_AFTER=$(git rev-parse HEAD 2>/dev/null || echo "")
 
@@ -54,12 +69,16 @@ HEAD_AFTER=$(git rev-parse HEAD 2>/dev/null || echo "")
 CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null | head -20 || echo "(keine neuen Commits)")
 LAST_COMMIT=$(git log --oneline -1 2>/dev/null || echo "kein Commit")
 
-# Prüfe ob Claude tatsächlich committet und gepusht hat
 if [[ $EXIT_CODE -eq 0 ]] && [[ "$HEAD_AFTER" != "$HEAD_BEFORE" ]]; then
-  # Verifiziere dass der Commit auch remote angekommen ist
+  # Merge Branch zurück in den Haupt-Workspace und push
+  cd "$WORKSPACE"
+  git merge "$BRANCH" --no-edit
+  git push
+
   REMOTE_HEAD=$(git ls-remote origin HEAD 2>/dev/null | cut -f1 || echo "")
-  if [[ -n "$REMOTE_HEAD" ]] && [[ "$REMOTE_HEAD" != "$HEAD_AFTER" ]]; then
-    log "[$AGENT_NAME] WARNUNG: Commit lokal vorhanden, aber git push scheint fehlgeschlagen (remote HEAD: ${REMOTE_HEAD:0:8}, lokal: ${HEAD_AFTER:0:8})"
+  LOCAL_HEAD=$(git rev-parse HEAD)
+  if [[ -n "$REMOTE_HEAD" ]] && [[ "$REMOTE_HEAD" != "$LOCAL_HEAD" ]]; then
+    log "[$AGENT_NAME] WARNUNG: git push scheint fehlgeschlagen (remote: ${REMOTE_HEAD:0:8}, lokal: ${LOCAL_HEAD:0:8})"
   fi
 
   gh_comment "**[Claude Code]** Implementierung abgeschlossen ✅

@@ -82,6 +82,7 @@ function saveState(state) {
 
 function ghGraphQL(query, variables = {}) {
   const varArgs = Object.entries(variables)
+    .filter(([, v]) => v != null)
     .flatMap(([k, v]) => ['-f', `${k}=${v}`]);
 
   const result = spawnSync(
@@ -109,10 +110,11 @@ function ghRun(...args) {
 // ── Board Query ───────────────────────────────────────────────────────────────
 
 const BOARD_QUERY = `
-query($boardId: ID!) {
+query($boardId: ID!, $cursor: String) {
   node(id: $boardId) {
     ... on ProjectV2 {
-      items(first: 50) {
+      items(first: 50, after: $cursor) {
+        pageInfo { endCursor hasNextPage }
         nodes {
           id
           updatedAt
@@ -120,7 +122,7 @@ query($boardId: ID!) {
             nodes {
               ... on ProjectV2ItemFieldSingleSelectValue {
                 name
-                field { ... on ProjectV2FieldCommon { name } }
+                field { ... on ProjectV2FieldCommon { name id } }
               }
             }
           }
@@ -151,8 +153,19 @@ query($boardId: ID!) {
 
 async function fetchBoardItems() {
   dbg(`Querying board ${CFG.BOARD_ID}...`);
-  const data = ghGraphQL(BOARD_QUERY, { boardId: CFG.BOARD_ID });
-  return data.data.node.items.nodes;
+  const allNodes = [];
+  let cursor = null;
+
+  do {
+    const vars = { boardId: CFG.BOARD_ID };
+    if (cursor) vars.cursor = cursor;
+    const data = ghGraphQL(BOARD_QUERY, vars);
+    const items = data.data.node.items;
+    allNodes.push(...items.nodes);
+    cursor = items.pageInfo.hasNextPage ? items.pageInfo.endCursor : null;
+  } while (cursor);
+
+  return allNodes;
 }
 
 // ── Column → Agent Mapping ────────────────────────────────────────────────────
@@ -166,7 +179,7 @@ const COLUMN_AGENTS = {
 
 function getItemStatus(item) {
   for (const fv of item.fieldValues.nodes) {
-    if (fv.field?.name === 'Status') return fv.name;
+    if (fv.field?.id === CFG.STATUS_FIELD_ID) return fv.name;
   }
   return null;
 }
@@ -273,9 +286,6 @@ async function poll() {
   }
 
   log(`${items.length} Items auf dem Board gefunden.`);
-  if (items.length === 50) {
-    warn('Board-Limit erreicht (50 Items) — Items jenseits von 50 werden nicht verarbeitet. Pagination fehlt.');
-  }
 
   let dispatched = 0;
   let skipped = 0;
@@ -323,6 +333,7 @@ async function poll() {
 
     dispatchAgent(agent, issue.number, item.id);
     dispatched++;
+    break; // M4: Max 1 Issue pro Poll-Lauf (passt zu 15-Min-Cron, vermeidet Komplexität)
   }
 
   log(`Poll abgeschlossen: ${dispatched} dispatched, ${locked} locked, ${skipped} skipped.`);

@@ -41,7 +41,11 @@ REASON: <ein Satz warum>
 QUESTIONS: <nur bei NOT_READY: konkrete Rückfragen, eine pro Zeile mit '- ' Präfix>"
 
 log "[$AGENT_NAME] Rufe Claude auf..."
-RESPONSE=$(timeout 1800 claude --print "$CONTEXT" 2>/dev/null)
+# B2: set +e damit EXIT_CODE korrekt erfasst wird
+# M3: GH_TOKEN aus Claude-Env entfernen
+set +e
+RESPONSE=$(timeout 1800 env -u GH_TOKEN claude --print "$CONTEXT" 2>/dev/null)
+set -e
 
 DECISION=$(echo "$RESPONSE" | grep '^DECISION:' | cut -d' ' -f2- | tr -d '[:space:]')
 REASON=$(echo "$RESPONSE" | grep '^REASON:' | cut -d' ' -f2-)

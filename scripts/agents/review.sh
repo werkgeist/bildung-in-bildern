@@ -14,6 +14,15 @@ BODY=$(gh_issue_body)
 
 cd "$WORKSPACE"
 
+# B3: Workspace-Isolation via git stash (Review ist read-only, kein Worktree nötig)
+STASH_MSG=$(git stash --include-untracked 2>&1 || true)
+if echo "$STASH_MSG" | grep -q "Saved"; then
+  STASHED=1
+else
+  STASHED=0
+fi
+trap '[[ ${STASHED:-0} -eq 1 ]] && git -C "$WORKSPACE" stash pop 2>/dev/null || true; gh_unlock' EXIT
+
 # Ermittle den Diff seit main
 DIFF=$(git diff origin/main...HEAD -- '*.ts' '*.tsx' '*.mjs' '*.mts' '*.css' '*.json' '*.config.*' 2>/dev/null | head -2000)
 COMMIT_LOG=$(git log --oneline origin/main...HEAD 2>/dev/null | head -10)
@@ -64,9 +73,17 @@ FINDINGS:
 (leer wenn keine Befunde)"
 
 log "[$AGENT_NAME] Rufe Codex auf..."
-if ! REVIEW=$(timeout 1800 codex exec --full-auto "$PROMPT" 2>/dev/null); then
+# B2: set +e damit EXIT_CODE korrekt erfasst wird
+# M3: GH_TOKEN aus Agent-Env entfernen
+set +e
+REVIEW=$(timeout 1800 env -u GH_TOKEN codex exec --full-auto "$PROMPT" 2>/dev/null)
+CODEX_EXIT=$?
+set -e
+if [[ $CODEX_EXIT -ne 0 ]]; then
   log "[$AGENT_NAME] Codex fehlgeschlagen oder nicht verfügbar — Fallback auf Claude."
-  REVIEW=$(timeout 1800 claude --print "$PROMPT" 2>/dev/null)
+  set +e
+  REVIEW=$(timeout 1800 env -u GH_TOKEN claude --print "$PROMPT" 2>/dev/null)
+  set -e
 fi
 
 DECISION=$(echo "$REVIEW" | grep '^DECISION:' | cut -d' ' -f2- | tr -d '[:space:]')
