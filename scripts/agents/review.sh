@@ -25,16 +25,23 @@ REVIEW_DIFF_FILE="/tmp/review-diff-${ISSUE_NUMBER}.patch"
 
 trap 'gh_unlock; rm -f "$REVIEW_SPEC_FILE" "$REVIEW_DIFF_FILE"' EXIT
 
-# Ermittle den Diff des letzten Commits (implement.sh merged Branch → main und pushed).
-# HEAD~1..HEAD zeigt was der letzte Commit (inkl. Merge-Commit) geändert hat.
-DIFF=$(git diff HEAD~1..HEAD -- '*.ts' '*.tsx' '*.mjs' '*.mts' '*.css' '*.json' '*.config.*' 2>/dev/null | head -2000)
-COMMIT_LOG=$(git log --oneline -5 2>/dev/null | head -10)
+# Ermittle Diff: zuerst origin/main...HEAD (Branch-Workflow).
+# Fallback auf HEAD~1..HEAD bei main-only Workflow (implement pushed direkt auf main,
+# daher origin/main == HEAD nach dem Merge → Branch-Diff leer).
+DIFF=$(git diff origin/main...HEAD -- '*.ts' '*.tsx' '*.mjs' '*.mts' '*.css' '*.json' '*.config.*' 2>/dev/null | head -2000)
+COMMIT_LOG=$(git log --oneline origin/main...HEAD 2>/dev/null | head -10)
+
+if [[ -z "$DIFF" ]]; then
+  log "[$AGENT_NAME] Kein Branch-Diff — Fallback auf HEAD~1..HEAD (main-only Workflow)"
+  DIFF=$(git diff HEAD~1..HEAD -- '*.ts' '*.tsx' '*.mjs' '*.mts' '*.css' '*.json' '*.config.*' 2>/dev/null | head -2000)
+  COMMIT_LOG=$(git log --oneline -5 2>/dev/null | head -10)
+fi
 
 if [[ -z "$DIFF" ]]; then
   log "[$AGENT_NAME] Kein Diff gefunden — nichts zu reviewen"
-  gh_comment "**[Codex]** Kein Diff gegen \`origin/main\` gefunden.
+  gh_comment "**[Codex]** Kein Diff gefunden (weder Branch-Diff noch HEAD~1..HEAD).
 
-Möglicherweise wurde noch kein Code gepusht. Bitte manuell prüfen.
+Möglicherweise wurde noch kein Code gepusht oder der letzte Commit war leer. Bitte manuell prüfen.
 
 → Bleibt in _Code Review_."
   exit 0
