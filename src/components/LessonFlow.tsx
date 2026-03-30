@@ -8,6 +8,7 @@ import type { Lesson } from "@/types/lesson";
 import SequenceViewer from "./SequenceViewer";
 import Quiz from "./Quiz";
 import { markComplete, getProgress } from "@/hooks/useProgress";
+import { recordAnswer as recordItemAnswer } from "@/data/item-bank";
 import { allLessons } from "@/data/lessons";
 
 interface LessonFlowProps {
@@ -32,6 +33,10 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
   }, [isQuizMode, lesson.id, router]);
 
   const handleSequenceComplete = () => setPhase("quiz");
+
+  const handleQuestionAnswered = (questionId: string, correct: boolean) => {
+    recordItemAnswer(lesson.id, questionId, correct);
+  };
 
   const handleQuizComplete = (score: number) => {
     setFinalScore(score);
@@ -79,7 +84,7 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
           </div>
         )}
         <h1 className="text-3xl font-bold text-amber-700 mb-8">Quiz</h1>
-        <Quiz questions={lesson.questions} onComplete={handleQuizComplete} lessonId={lesson.id} />
+        <Quiz questions={lesson.questions} onComplete={handleQuizComplete} lessonId={lesson.id} onQuestionAnswered={handleQuestionAnswered} />
       </div>
     );
   }

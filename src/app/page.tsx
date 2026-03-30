@@ -4,6 +4,7 @@ import { allLessons } from "@/data/lessons";
 import type { Lesson } from "@/types/lesson";
 import ProgressBadge from "@/components/ProgressBadge";
 import QuizRepeatLink from "@/components/QuizRepeatLink";
+import ReviewCard from "@/components/ReviewCard";
 
 function ProgressLink() {
   return (
@@ -90,6 +91,7 @@ export default function Home() {
         role="list"
         aria-label="Lektionen"
       >
+        <ReviewCard />
         {lessons.map((lesson) => (
           <div key={lesson.id} role="listitem" className="flex flex-col">
             <LessonCard lesson={lesson} />

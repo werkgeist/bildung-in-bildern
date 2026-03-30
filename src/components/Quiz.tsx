@@ -11,9 +11,10 @@ interface QuizProps {
   questions: QuizQuestion[];
   onComplete: (score: number) => void;
   lessonId?: string;
+  onQuestionAnswered?: (questionId: string, correct: boolean) => void;
 }
 
-export default function Quiz({ questions, onComplete, lessonId }: QuizProps) {
+export default function Quiz({ questions, onComplete, lessonId, onQuestionAnswered }: QuizProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -55,6 +56,8 @@ export default function Quiz({ questions, onComplete, lessonId }: QuizProps) {
       lessonId,
       stepIndex: currentIndex,
     });
+
+    onQuestionAnswered?.(question.id, correct);
 
     if (lessonId) {
       void trackEvent({
