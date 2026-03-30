@@ -41,10 +41,63 @@ fi
 # ── Ergebnis ──────────────────────────────────────────────────────────────────
 
 if $TEST_OK && $BUILD_OK; then
+
+  # ── Production Build mit Access Token ───────────────────────────────────────
+  DEPLOY_OK=false
+  DEPLOY_URL=""
+  DEPLOY_OUTPUT=""
+  DEPLOY_WARNING=""
+
+  BIB_TOKEN_FILE="$HOME/.config/cloudflare/bib-access-token"
+  CF_TOKEN_FILE="$HOME/.config/cloudflare/api-token"
+
+  if [[ -f "$BIB_TOKEN_FILE" && -f "$CF_TOKEN_FILE" ]]; then
+    log "[$AGENT_NAME] Production Build mit NEXT_PUBLIC_ACCESS_TOKEN..."
+    BIB_TOKEN=$(cat "$BIB_TOKEN_FILE")
+    CF_TOKEN=$(cat "$CF_TOKEN_FILE")
+
+    if PROD_BUILD_OUTPUT=$(NEXT_PUBLIC_ACCESS_TOKEN="$BIB_TOKEN" pnpm build 2>&1); then
+      log "[$AGENT_NAME] Production Build: ✅"
+
+      # ── Deploy ──────────────────────────────────────────────────────────────
+      log "[$AGENT_NAME] Deploy via wrangler pages deploy..."
+      if DEPLOY_OUTPUT=$(CLOUDFLARE_API_TOKEN="$CF_TOKEN" npx wrangler pages deploy out \
+          --project-name bildung-in-bildern \
+          --branch main \
+          --commit-dirty=true 2>&1); then
+        DEPLOY_OK=true
+        # Extrahiere Deploy-URL aus wrangler Output
+        DEPLOY_URL=$(echo "$DEPLOY_OUTPUT" | grep -oE 'https://[a-zA-Z0-9._-]+\.pages\.dev[^ ]*' | tail -1 || true)
+        log "[$AGENT_NAME] Deploy: ✅ ${DEPLOY_URL}"
+      else
+        DEPLOY_WARNING="Deploy fehlgeschlagen — Code ist korrekt, manuelles Deploy erforderlich."
+        log "[$AGENT_NAME] Deploy: ❌ (Warnung, kein Blocker)"
+      fi
+    else
+      DEPLOY_WARNING="Production Build fehlgeschlagen — Code ist korrekt, manuelles Deploy erforderlich."
+      log "[$AGENT_NAME] Production Build: ❌ (Warnung, kein Blocker)"
+    fi
+  else
+    DEPLOY_WARNING="Token-Dateien nicht gefunden ($BIB_TOKEN_FILE / $CF_TOKEN_FILE) — manuelles Deploy erforderlich."
+    log "[$AGENT_NAME] Deploy übersprungen: Token-Dateien fehlen"
+  fi
+
+  # ── GitHub Kommentar ─────────────────────────────────────────────────────────
+  DEPLOY_SECTION=""
+  if $DEPLOY_OK; then
+    DEPLOY_SECTION="**Deploy:** ✅ Erfolgreich"
+    if [[ -n "$DEPLOY_URL" ]]; then
+      DEPLOY_SECTION+=$'\n'"**URL:** $DEPLOY_URL"
+    fi
+  else
+    DEPLOY_SECTION="**Deploy:** ⚠️ ${DEPLOY_WARNING}"
+  fi
+
   gh_comment "**[Test]** Alle Tests bestanden ✅
 
 **pnpm test:** ✅ Grün
 **pnpm build:** ✅ Erfolgreich
+${DEPLOY_SECTION}
 
 → Verschiebe nach _Done_ + schließe Issue."
 
