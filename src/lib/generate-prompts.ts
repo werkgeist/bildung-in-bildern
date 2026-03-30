@@ -148,7 +148,7 @@ export function generatePrompts(spec: LessonSpec): ImagePrompt[] {
 
 /**
  * Wrap generatePrompts output into an AssetManifest structure.
- * src fields are empty strings — to be filled after image generation.
+ * src/filePath/generatedAt/checksum/seed are empty — to be filled after image generation.
  */
 export function generateAssetManifest(
   spec: LessonSpec,
@@ -162,8 +162,13 @@ export function generateAssetManifest(
     assets: prompts.map((p) => ({
       refId: p.stepId,
       prompt: p.prompt,
+      negativePrompt: p.negativePrompt,
       src: "",
       size: "1024x1024",
+      stepRef: p.stepId,
+      role: "story" as const,
+      filePath: "",
+      model,
     })),
   };
 }

@@ -56,3 +56,31 @@ export const LessonSpecSchema = z.object({
 });
 
 export type ValidatedLessonSpec = z.infer<typeof LessonSpecSchema>;
+
+// ─── Asset Manifest Schema (Pipeline-Output) ─────────────────
+
+export const AssetEntrySchema = z.object({
+  refId: z.string().min(1),
+  prompt: z.string().min(1),
+  src: z.string(),
+  size: z.string().optional(),
+  seed: z.number().int().optional(),
+  // Provenance fields (Issue #33)
+  stepRef: z.string().optional(),
+  role: z.enum(["story", "quiz-correct", "quiz-distractor"]).optional(),
+  filePath: z.string().optional(),
+  negativePrompt: z.string().optional(),
+  model: z.string().optional(),
+  steps: z.number().int().positive().optional(),
+  generatedAt: z.string().optional(),
+  checksum: z.string().optional(),
+});
+
+export const AssetManifestSchema = z.object({
+  lessonId: z.string().min(1),
+  generatedAt: z.string().min(1),
+  model: z.string().min(1),
+  assets: z.array(AssetEntrySchema),
+});
+
+export type ValidatedAssetManifest = z.infer<typeof AssetManifestSchema>;

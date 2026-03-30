@@ -142,6 +142,24 @@ export interface AssetEntry {
   size?: string; // "1024x1024"
   /** Generierungs-Seed für Reproduzierbarkeit */
   seed?: number;
+
+  // ─── Provenance-Felder (Issue #33) ───────────────────────────
+  /** Kurzreferenz auf den LessonStep, z.B. 'schmetterling-lebenszyklus-step-1' */
+  stepRef?: string;
+  /** Rolle des Bildes im Lerninhalt */
+  role?: "story" | "quiz-correct" | "quiz-distractor";
+  /** Relativer Pfad zum gespeicherten Bild (befüllt nach Generierung) */
+  filePath?: string;
+  /** Negativer Prompt der verwendet wurde */
+  negativePrompt?: string;
+  /** Model das das Bild generiert hat, z.B. 'black-forest-labs/FLUX.2-dev' */
+  model?: string;
+  /** Anzahl Inference Steps */
+  steps?: number;
+  /** ISO timestamp der Einzelbild-Generierung */
+  generatedAt?: string;
+  /** SHA256-Checksum des Bildes (befüllt nach Generierung) */
+  checksum?: string;
 }
 
 // ─── Adaptivität (Phase 2+) ──────────────────────────────────

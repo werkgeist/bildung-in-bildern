@@ -106,17 +106,21 @@ function buildAllPrompts(spec) {
   return results;
 }
 
-function buildAssetManifest(spec, prompts) {
+function buildAssetManifest(spec, prompts, model = "FLUX.2-dev") {
   return {
     lessonId: spec.id,
     generatedAt: new Date().toISOString(),
-    model: "FLUX.2-dev",
+    model,
     assets: prompts.map((p) => ({
       refId: p.refId,
       prompt: p.prompt,
       negativePrompt: p.negativePrompt,
       src: "", // To be filled after generation
       size: "1024x1024",
+      stepRef: p.refId,
+      role: "story",
+      filePath: "", // To be filled after generation
+      model,
     })),
   };
 }

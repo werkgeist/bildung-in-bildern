@@ -1,0 +1,51 @@
+{
+  "lessonId": "schmetterling-lebenszyklus",
+  "generatedAt": "2026-03-30T12:08:24.581Z",
+  "model": "FLUX.2-dev",
+  "assets": [
+    {
+      "refId": "schmetterling-lebenszyklus-step-1",
+      "prompt": "Clean, simple vector illustration, warm colorful style, soft rounded shapes, thick outlines, no texture, high contrast, bold shapes, consistent visual elements, einzelnes kleines rundes Ei, grünes Blatt als Unterlage, color palette: #4CAF50, #8BC34A, #FF9800, #E91E63, #2196F3, solid white background, solid background, centered composition, no text, no letters, no watermark, clear distinct elements, strong visible arrows where indicated",
+      "negativePrompt": "text, letters, watermark, photorealistic, cinematic lighting, complex textures, busy background, clutter, humans, faces, faint elements, low contrast, tiny details, Raupe, Schmetterling, Puppe",
+      "src": "",
+      "size": "1024x1024",
+      "stepRef": "schmetterling-lebenszyklus-step-1",
+      "role": "story",
+      "filePath": "",
+      "model": "FLUX.2-dev"
+    },
+    {
+      "refId": "schmetterling-lebenszyklus-step-2",
+      "prompt": "Clean, simple vector illustration, warm colorful style, soft rounded shapes, thick outlines, no texture, high contrast, bold shapes, consistent visual elements, deutlich erkennbare Raupe, angefressenes Blatt, color palette: #4CAF50, #8BC34A, #FF9800, #E91E63, #2196F3, solid white background, solid background, centered composition, no text, no letters, no watermark, clear distinct elements, strong visible arrows where indicated",
+      "negativePrompt": "text, letters, watermark, photorealistic, cinematic lighting, complex textures, busy background, clutter, humans, faces, faint elements, low contrast, tiny details, Ei, Puppe, Flügel",
+      "src": "",
+      "size": "1024x1024",
+      "stepRef": "schmetterling-lebenszyklus-step-2",
+      "role": "story",
+      "filePath": "",
+      "model": "FLUX.2-dev"
+    },
+    {
+      "refId": "schmetterling-lebenszyklus-step-3",
+      "prompt": "Clean, simple vector illustration, warm colorful style, soft rounded shapes, thick outlines, no texture, high contrast, bold shapes, consistent visual elements, geschlossene Puppe/Kokon, Ast oder Zweig, color palette: #4CAF50, #8BC34A, #FF9800, #E91E63, #2196F3, solid white background, solid background, centered composition, no text, no letters, no watermark, clear distinct elements, strong visible arrows where indicated",
+      "negativePrompt": "text, letters, watermark, photorealistic, cinematic lighting, complex textures, busy background, clutter, humans, faces, faint elements, low contrast, tiny details, Raupe in Bewegung, Schmetterling, Ei",
+      "src": "",
+      "size": "1024x1024",
+      "stepRef": "schmetterling-lebenszyklus-step-3",
+      "role": "story",
+      "filePath": "",
+      "model": "FLUX.2-dev"
+    },
+    {
+      "refId": "schmetterling-lebenszyklus-step-4",
+      "prompt": "Clean, simple vector illustration, warm colorful style, soft rounded shapes, thick outlines, no texture, high contrast, bold shapes, consistent visual elements, Schmetterling mit ausgebreiteten bunten Flügeln, color palette: #4CAF50, #8BC34A, #FF9800, #E91E63, #2196F3, solid white background, solid background, centered composition, no text, no letters, no watermark, clear distinct elements, strong visible arrows where indicated",
+      "negativePrompt": "text, letters, watermark, photorealistic, cinematic lighting, complex textures, busy background, clutter, humans, faces, faint elements, low contrast, tiny details, Puppe, Raupe, Ei",
+      "src": "",
+      "size": "1024x1024",
+      "stepRef": "schmetterling-lebenszyklus-step-4",
+      "role": "story",
+      "filePath": "",
+      "model": "FLUX.2-dev"
+    }
+  ]
+}
