@@ -20,6 +20,7 @@ COMMENTS=$(gh_issue_comments 5)
 MARKER="<!-- agent:review:v1 -->"
 if echo "$COMMENTS" | grep -q "agent:review:v1"; then
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits reviewed (Marker gefunden). Überspringe."
+  gh_unlock
   exit 0
 fi
 

@@ -18,6 +18,7 @@ COMMENTS=$(gh_issue_comments 5)
 MARKER="<!-- agent:refinement:v3 -->"
 if echo "$COMMENTS" | grep -q "agent:refinement:v3"; then
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits geprüft (Marker gefunden). Überspringe."
+  gh_unlock
   exit 0
 fi
 
