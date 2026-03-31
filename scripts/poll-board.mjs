@@ -232,6 +232,102 @@ function addLockLabel(issueNumber) {
     '--repo', CFG.REPO);
 }
 
+// ── Auto-Prioritization (1x täglich) ─────────────────────────────────────────
+
+const PRIORITY_LABELS = {
+  critical: { color: 'B60205', description: 'Kaputte Wahrheitsschicht / Kernlogik' },
+  high:     { color: 'D93F0B', description: 'UX-Blocker für Nutzer' },
+  medium:   { color: 'FBCA04', description: 'Verbesserung / Content-Qualität' },
+  low:      { color: '0E8A16', description: 'Nice-to-have / Kosmetik' },
+};
+
+function classifyPriority(title, body, labels) {
+  const text = `${title} ${body}`.toLowerCase();
+  const labelNames = labels.map((l) => l.name.toLowerCase());
+
+  // Already has a priority label → skip
+  if (labelNames.some((l) => l.startsWith('priority:'))) return null;
+
+  // Critical: wrong feedback, broken core logic, false positive/negative
+  if (/\b(falsch|wrong|kaputt|broken|lüg|misleading|0\s*(von|\/)\s*\d.*gut gemacht|gut gemacht.*0)\b/.test(text)) return 'critical';
+  if (/\b(inkonsistent|inconsistent).*stern/i.test(text) || /stern.*inkonsistent/i.test(text)) return 'critical';
+  if (/\bkein(e)?\s*(rück|feed\s*back|unmittelbar)/i.test(text)) return 'critical';
+  if (/fortschritt.*quiz.*trenn|abgeschlossen.*unklar/i.test(text)) return 'critical';
+
+  // High: UX blockers, broken visuals, navigation issues
+  if (/\b(navigation|kryptisch|kaputt.*icon|icon.*kaputt|überlag|overlapping|nicht lesbar|unlesbar)\b/.test(text)) return 'high';
+  if (/\bbug\b/i.test(text) && !labelNames.includes('analysis')) return 'high';
+
+  // Medium: Content quality, missing content, wrong content
+  if (/\b(content|inhalt|mehrdeutig|ambiguous|zu wenig|too few|immer gleich|immer\s*🦋)\b/.test(text)) return 'medium';
+  if (/\b(quiz.*frag|frag.*quiz).*wenig/i.test(text)) return 'medium';
+
+  // Low: infra, dupes, nice-to-have
+  if (/\b(infra|pipeline|agent|refinement|poller|duplikat|dupe)\b/.test(text)) return 'low';
+
+  // Default for Backlog items without clear signals
+  return 'medium';
+}
+
+function ensurePriorityLabels() {
+  for (const [level, meta] of Object.entries(PRIORITY_LABELS)) {
+    try {
+      ghRun('label', 'create', `priority:${level}`,
+        '--color', meta.color,
+        '--description', meta.description,
+        '--repo', CFG.REPO);
+    } catch { /* already exists */ }
+  }
+}
+
+function autoPrioritize(items, state) {
+  // Run once per day
+  const lastRun = state._lastPrioritize || 0;
+  const hoursSince = (Date.now() - lastRun) / 3600000;
+  if (hoursSince < 20) {
+    dbg(`Auto-Prioritize: Letzter Lauf vor ${hoursSince.toFixed(1)}h — überspringe (< 20h).`);
+    return;
+  }
+
+  log('Auto-Prioritize: Starte tägliche Priorisierung...');
+  if (!DRYRUN) ensurePriorityLabels();
+
+  let labeled = 0;
+  for (const item of items) {
+    const issue = item.content;
+    if (!issue || !issue.number) continue;
+    if (issue.state === 'CLOSED') continue;
+
+    const status = getItemStatus(item);
+    if (status === 'Done') continue;
+
+    const priority = classifyPriority(
+      issue.title || '',
+      issue.body || '',
+      issue.labels?.nodes || []
+    );
+
+    if (!priority) continue; // already labeled
+
+    log(`#${issue.number}: → priority:${priority} ("${issue.title}")`);
+    if (!DRYRUN) {
+      try {
+        ghRun('issue', 'edit', String(issue.number),
+          '--add-label', `priority:${priority}`,
+          '--repo', CFG.REPO);
+        labeled++;
+      } catch (e) {
+        warn(`#${issue.number}: Label setzen fehlgeschlagen: ${e.message}`);
+      }
+    }
+  }
+
+  state._lastPrioritize = Date.now();
+  saveState(state);
+  if (labeled > 0) log(`Auto-Prioritize: ${labeled} Issue(s) gelabelt.`);
+  else log('Auto-Prioritize: Alle Issues bereits priorisiert.');
+}
+
 // ── Agent Dispatch ────────────────────────────────────────────────────────────
 
 function dispatchAgent(agentName, issueNumber, itemId) {
@@ -322,6 +418,9 @@ async function poll() {
   }
 
   if (autoMoved > 0) log(`${autoMoved} Item(s) automatisch nach Backlog verschoben.`);
+
+  // Daily auto-prioritize
+  autoPrioritize(items, state);
 
   for (const item of items) {
     const issue = item.content;
