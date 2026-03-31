@@ -31,7 +31,7 @@ git merge --ff-only origin/main 2>/dev/null || git reset --hard origin/main
 REVIEW_SPEC_FILE="/tmp/review-spec-${ISSUE_NUMBER}.md"
 REVIEW_DIFF_FILE="/tmp/review-diff-${ISSUE_NUMBER}.patch"
 
-trap 'gh_unlock; rm -f "$REVIEW_SPEC_FILE" "$REVIEW_DIFF_FILE"' EXIT
+trap 'rm -f "$REVIEW_SPEC_FILE" "$REVIEW_DIFF_FILE"' EXIT  # Lock bleibt — wird nur bei Erfolg entfernt
 
 # Ermittle Diff: zuerst origin/main...HEAD (Branch-Workflow).
 # Fallback auf HEAD~1..HEAD bei main-only Workflow (implement pushed direkt auf main,
@@ -115,6 +115,7 @@ ${FINDINGS}}
 → Verschiebe nach _Testing_."
 
   gh_move_to "$STATUS_TESTING"
+  gh_unlock  # Erfolg → Lock entfernen
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Testing"
 else
   gh_comment "${MARKER}
@@ -128,5 +129,6 @@ ${FINDINGS}
 → Verschiebe zurück nach _In Progress_."
 
   gh_move_to "$STATUS_IN_PROGRESS"
+  gh_unlock  # Entscheidung getroffen → Lock entfernen
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → In Progress (Changes requested)"
 fi

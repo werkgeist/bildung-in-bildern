@@ -112,6 +112,7 @@ ${DEPLOY_SECTION}
 
   gh_move_to "$STATUS_DONE"
   gh issue close "$ISSUE_NUMBER" --repo "$REPO" --comment "**[Test]** Automatisch geschlossen — alle Tests grün, Build erfolgreich."
+  gh_unlock  # Erfolg → Lock entfernen
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Done (geschlossen)"
 
 else
@@ -149,5 +150,6 @@ ${BUILD_EXCERPT}
 
   gh_comment "$COMMENT"
   gh_move_to "$STATUS_IN_PROGRESS"
+  gh_unlock  # Entscheidung getroffen → Lock entfernen
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → In Progress (Tests/Build fehlgeschlagen)"
 fi

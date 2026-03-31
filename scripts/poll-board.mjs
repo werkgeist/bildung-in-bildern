@@ -11,7 +11,7 @@
  */
 
 import { spawnSync, spawn } from 'node:child_process';
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, openSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -341,11 +341,18 @@ function dispatchAgent(agentName, issueNumber, itemId) {
 
   // M4: Agents laufen detached (spawn + unref) — Poller blockiert nicht auf Agent-Laufzeit.
   // Max 1 Dispatch pro Poll-Lauf (break im Haupt-Loop) verhindert Überlastung.
+  // Agent-Log in eigene Datei schreiben
+  const logDir = '/tmp/bib-agent-logs';
+  spawnSync('mkdir', ['-p', logDir]);
+  const logPath = `${logDir}/${issueNumber}-${new Date().toISOString().replace(/[:.]/g, '-')}.log`;
+  const logFd = openSync(logPath, 'a');
+  log(`#${issueNumber}: Log → ${logPath}`);
+
   const child = spawn(
     'bash', [scriptPath, String(issueNumber), itemId],
     {
       detached: true,
-      stdio: 'ignore',
+      stdio: ['ignore', logFd, logFd],
       env: {
         ...process.env,
         GH_TOKEN,

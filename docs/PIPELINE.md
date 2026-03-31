@@ -114,11 +114,11 @@ Implementiert das Issue vollständig:
 
 ### Code Review → Review Agent
 **Script:** `scripts/agents/review.sh`
-**Tool:** Codex (codex exec --full-auto), Fallback: Claude
+**Tool:** Claude (`claude --permission-mode bypassPermissions --print`, kein `--yolo`/`--full-auto`)
 
-Überprüft den Diff gegen `origin/main`:
-- `git fetch origin` + `git stash` am Anfang (aktueller, sauberer Stand), `git stash pop` via EXIT-Trap
-- Issue-Spec und Diff werden in Temp-Dateien geschrieben (M3: kein Inline-Content im Prompt)
+Überprüft den Diff des letzten Commits (`HEAD~1..HEAD`):
+- `git fetch origin` am Anfang (sauberer, aktueller Stand via fast-forward)
+- Issue-Spec und Diff werden in Temp-Dateien geschrieben (kein Inline-Content im Prompt)
 - Spec-Compliance (Issue-Anforderungen erfüllt?)
 - Bugs, Typen-Fehler, Sicherheit
 - WCAG 2.2 AA, Performance, Conventional Commits

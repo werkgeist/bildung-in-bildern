@@ -36,8 +36,8 @@ ISSUE_FILE="/tmp/issue-${ISSUE_NUMBER}.md"
   printf '## Kontext aus vorherigen Kommentaren\n\n%s\n' "$COMMENTS"
 } > "$ISSUE_FILE"
 
-# Cleanup: Worktree + Branch + Lock + Temp-Datei entfernen
-trap 'git -C "$WORKSPACE" worktree remove --force "$WORKTREE" 2>/dev/null || true; git -C "$WORKSPACE" branch -D "$BRANCH" 2>/dev/null || true; gh_unlock; rm -f "$ISSUE_FILE"' EXIT
+# Cleanup: Worktree + Branch + Temp-Datei entfernen (Lock bleibt — wird nur bei Erfolg entfernt)
+trap 'git -C "$WORKSPACE" worktree remove --force "$WORKTREE" 2>/dev/null || true; git -C "$WORKSPACE" branch -D "$BRANCH" 2>/dev/null || true; rm -f "$ISSUE_FILE"' EXIT
 
 # Baue Implementierungs-Prompt (Issue-Body NICHT inline — kein Prompt-Injection-Risiko)
 PROMPT="Du bist ein Senior TypeScript/React Entwickler für das Projekt 'Bildung in Bildern' (BiB).
@@ -105,6 +105,7 @@ ${CHANGED_FILES}
 → Verschiebe nach _Code Review_."
 
   gh_move_to "$STATUS_CODE_REVIEW"
+  gh_unlock  # Erfolg → Lock entfernen
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Code Review"
 elif [[ $EXIT_CODE -eq 0 ]] && [[ "$HEAD_AFTER" == "$HEAD_BEFORE" ]]; then
   gh_comment "${MARKER}
@@ -114,6 +115,7 @@ elif [[ $EXIT_CODE -eq 0 ]] && [[ "$HEAD_AFTER" == "$HEAD_BEFORE" ]]; then
 
 → Bleibt in _In Progress_ — manuelle Überprüfung erforderlich."
 
+  gh_unlock  # Entscheidung getroffen → Lock entfernen
   log "[$AGENT_NAME] Kein neuer Commit nach Claude-Lauf — bleibt in In Progress"
 else
   gh_comment "${MARKER}
@@ -128,5 +130,6 @@ $(echo "$IMPLEMENTATION_LOG" | tail -20)
 
 → Bleibt in _In Progress_ — manuelle Überprüfung erforderlich."
 
+  gh_unlock  # Fehler gemeldet → Lock entfernen, Issue bleibt In Progress
   log "[$AGENT_NAME] Implementierung fehlgeschlagen (exit $EXIT_CODE)"
 fi

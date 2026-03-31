@@ -28,7 +28,7 @@ ISSUE_FILE="/tmp/issue-${ISSUE_NUMBER}.md"
   printf '## Body\n\n%s\n\n' "$BODY"
   printf '## Letzte Kommentare\n\n%s\n' "$COMMENTS"
 } > "$ISSUE_FILE"
-trap 'gh_unlock; rm -f "$ISSUE_FILE"' EXIT
+trap 'rm -f "$ISSUE_FILE"' EXIT  # Lock bleibt — wird nur bei Erfolg entfernt
 
 # Baue Kontext für Claude (Issue-Body NICHT inline — kein Prompt-Injection-Risiko)
 CONTEXT="Du bist ein Refinement-Agent für das Projekt 'Bildung in Bildern' (BiB).
@@ -70,6 +70,7 @@ if [[ "$DECISION" == "READY" ]]; then
 → Verschiebe nach _In Progress_."
 
   gh_move_to "$STATUS_IN_PROGRESS"
+  gh_unlock  # Erfolg → Lock entfernen
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → In Progress"
 else
   COMMENT="${MARKER}
@@ -87,5 +88,6 @@ ${QUESTIONS}"
   gh_comment "$COMMENT"
   # NOT_READY → zurück nach Backlog (nicht in Ready lassen, sonst Endlos-Loop)
   gh_move_to "$STATUS_BACKLOG"
+  gh_unlock  # Entscheidung getroffen → Lock entfernen
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Backlog (nicht implementierbar)"
 fi

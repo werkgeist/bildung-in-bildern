@@ -20,8 +20,11 @@ if [[ -z "${GH_TOKEN:-}" ]]; then
   export GH_TOKEN
 fi
 
-# ── Logging ───────────────────────────────────────────────────────────────────
-log()  { echo "[$(date -Iseconds)] $*" >&2; }
+# ── Logging (mit Datei) ────────────────────────────────────────────────────────
+LOG_DIR="/tmp/bib-agent-logs"
+mkdir -p "$LOG_DIR"
+LOG_FILE="${LOG_DIR}/${ISSUE_NUMBER}-$(date -u +%Y%m%d-%H%M%S).log"
+log()  { echo "[$(date -Iseconds)] $*" | tee -a "$LOG_FILE" >&2; }
 die()  { log "FATAL: $*"; exit 1; }
 
 # ── GitHub Helpers ────────────────────────────────────────────────────────────
@@ -74,5 +77,7 @@ gh_issue_title() {
   gh issue view "$ISSUE_NUMBER" --repo "$REPO" --json title -q '.title'
 }
 
-# Trap: always unlock on exit
-trap 'gh_unlock' EXIT
+# Trap: Log on exit, but do NOT unlock — lock stays until agent explicitly calls gh_unlock.
+# This prevents the poller from re-dispatching on crash/error.
+# The poller's lock-timeout mechanism (LOCK_TIMEOUT_MINUTES) will clean up stuck locks.
+trap 'log "Agent-Prozess beendet (exit $?). Lock-Label bleibt bestehen bis explizit entfernt."' EXIT
