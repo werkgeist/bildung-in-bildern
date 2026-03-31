@@ -290,6 +290,38 @@ async function poll() {
   let dispatched = 0;
   let skipped = 0;
   let locked = 0;
+  let autoMoved = 0;
+
+  // Auto-fix: Items ohne Status → Backlog schieben
+  for (const item of items) {
+    const issue = item.content;
+    if (!issue || !issue.number) continue;
+    if (issue.state === 'CLOSED') continue;
+
+    const status = getItemStatus(item);
+    if (status === null) {
+      log(`#${issue.number}: Kein Status gesetzt — schiebe nach Backlog.`);
+      if (!DRYRUN) {
+        try {
+          const moveQuery = `mutation {
+            updateProjectV2ItemFieldValue(input: {
+              projectId: "${CFG.BOARD_ID}"
+              itemId: "${item.id}"
+              fieldId: "${CFG.STATUS_FIELD_ID}"
+              value: { singleSelectOptionId: "${CFG.STATUS_BACKLOG}" }
+            }) { projectV2Item { id } }
+          }`;
+          ghGraphQL(moveQuery);
+          log(`#${issue.number}: → Backlog ✅`);
+        } catch (e) {
+          warn(`#${issue.number}: Auto-Move nach Backlog fehlgeschlagen: ${e.message}`);
+        }
+      }
+      autoMoved++;
+    }
+  }
+
+  if (autoMoved > 0) log(`${autoMoved} Item(s) automatisch nach Backlog verschoben.`);
 
   for (const item of items) {
     const issue = item.content;
