@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import LessonFlow from "@/components/LessonFlow";
 import { schmetterlingsLesson } from "@/data/schmetterling";
 import { allLessons } from "@/data/lessons";
@@ -36,8 +36,7 @@ describe("LessonFlow", () => {
     expect(screen.getByText("Was kommt nach dem Ei?")).toBeDefined();
   });
 
-  it("transitions from quiz to result after all questions answered", async () => {
-    vi.useFakeTimers();
+  it("transitions from quiz to result after all questions answered", () => {
     render(<LessonFlow lesson={schmetterlingsLesson} />);
     // Skip sequence
     fireEvent.click(screen.getByLabelText("Weiter"));
@@ -46,18 +45,16 @@ describe("LessonFlow", () => {
     fireEvent.click(screen.getByLabelText("Quiz starten"));
 
     fireEvent.click(screen.getByLabelText("Die Raupe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     fireEvent.click(screen.getByLabelText("Die Puppe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     expect(screen.getByText("Super gemacht!")).toBeDefined();
     expect(screen.getByText("2 von 2 richtig")).toBeDefined();
-    vi.useRealTimers();
   });
 
-  it("shows result with partial score when some answers are wrong", async () => {
-    vi.useFakeTimers();
+  it("shows result with partial score when some answers are wrong", () => {
     render(<LessonFlow lesson={schmetterlingsLesson} />);
     // Skip sequence
     fireEvent.click(screen.getByLabelText("Weiter"));
@@ -67,19 +64,17 @@ describe("LessonFlow", () => {
 
     // Answer q1 wrong
     fireEvent.click(screen.getByLabelText("Der Schmetterling"));
-    await act(async () => { vi.advanceTimersByTime(2000); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     // Answer q2 correct
     fireEvent.click(screen.getByLabelText("Die Puppe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     expect(screen.getByText("Gut gemacht!")).toBeDefined();
     expect(screen.getByText("1 von 2 richtig")).toBeDefined();
-    vi.useRealTimers();
   });
 
-  it("shows retry message when all answers are wrong (0 correct)", async () => {
-    vi.useFakeTimers();
+  it("shows retry message when all answers are wrong (0 correct)", () => {
     render(<LessonFlow lesson={schmetterlingsLesson} />);
     // Skip sequence
     fireEvent.click(screen.getByLabelText("Weiter"));
@@ -89,20 +84,18 @@ describe("LessonFlow", () => {
 
     // Answer both questions wrong
     fireEvent.click(screen.getByLabelText("Der Schmetterling"));
-    await act(async () => { vi.advanceTimersByTime(2000); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     fireEvent.click(screen.getByLabelText("Der Schmetterling"));
-    await act(async () => { vi.advanceTimersByTime(2000); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     expect(screen.getByText("Wir schauen uns das nochmal an")).toBeDefined();
     expect(screen.getByText("0 von 2 richtig")).toBeDefined();
     expect(screen.queryByText("Gut gemacht!")).toBeNull();
     expect(screen.queryByText("Super gemacht!")).toBeNull();
-    vi.useRealTimers();
   });
 
-  it("restarts lesson from result screen", async () => {
-    vi.useFakeTimers();
+  it("restarts lesson from result screen", () => {
     render(<LessonFlow lesson={schmetterlingsLesson} />);
     // Skip sequence
     fireEvent.click(screen.getByLabelText("Weiter"));
@@ -111,17 +104,15 @@ describe("LessonFlow", () => {
     fireEvent.click(screen.getByLabelText("Quiz starten"));
 
     fireEvent.click(screen.getByLabelText("Die Raupe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
     fireEvent.click(screen.getByLabelText("Die Puppe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     fireEvent.click(screen.getByRole("button", { name: "Lektion nochmal lernen" }));
     expect(screen.getByText("Vom Ei zum Schmetterling")).toBeDefined();
-    vi.useRealTimers();
   });
 
-  it("shows Startseite and Nächste Lektion buttons on result screen", async () => {
-    vi.useFakeTimers();
+  it("shows Startseite and Nächste Lektion buttons on result screen", () => {
     render(<LessonFlow lesson={schmetterlingsLesson} />);
     fireEvent.click(screen.getByLabelText("Weiter"));
     fireEvent.click(screen.getByLabelText("Weiter"));
@@ -129,17 +120,15 @@ describe("LessonFlow", () => {
     fireEvent.click(screen.getByLabelText("Quiz starten"));
 
     fireEvent.click(screen.getByLabelText("Die Raupe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
     fireEvent.click(screen.getByLabelText("Die Puppe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     expect(screen.getByRole("link", { name: "Zurück zur Startseite" })).toBeDefined();
     expect(screen.getByRole("button", { name: "Lektion nochmal lernen" })).toBeDefined();
-    vi.useRealTimers();
   });
 
-  it("shows next lesson button when a next lesson exists", async () => {
-    vi.useFakeTimers();
+  it("shows next lesson button when a next lesson exists", () => {
     render(<LessonFlow lesson={schmetterlingsLesson} />);
     fireEvent.click(screen.getByLabelText("Weiter"));
     fireEvent.click(screen.getByLabelText("Weiter"));
@@ -147,18 +136,16 @@ describe("LessonFlow", () => {
     fireEvent.click(screen.getByLabelText("Quiz starten"));
 
     fireEvent.click(screen.getByLabelText("Die Raupe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
     fireEvent.click(screen.getByLabelText("Die Puppe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     // schmetterling is first, so next lesson is wasserkreislauf
     const nextLesson = allLessons[1];
     expect(screen.getByRole("link", { name: `Nächste Lektion: ${nextLesson.title}` })).toBeDefined();
-    vi.useRealTimers();
   });
 
-  it("shows Quiz wiederholen button on result screen in normal mode", async () => {
-    vi.useFakeTimers();
+  it("shows Quiz wiederholen button on result screen in normal mode", () => {
     render(<LessonFlow lesson={schmetterlingsLesson} />);
     fireEvent.click(screen.getByLabelText("Weiter"));
     fireEvent.click(screen.getByLabelText("Weiter"));
@@ -166,17 +153,15 @@ describe("LessonFlow", () => {
     fireEvent.click(screen.getByLabelText("Quiz starten"));
 
     fireEvent.click(screen.getByLabelText("Die Raupe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
     fireEvent.click(screen.getByLabelText("Die Puppe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     const quizRepeatLink = screen.getByRole("link", { name: "Quiz wiederholen" });
     expect(quizRepeatLink.getAttribute("href")).toBe(`/lesson/${schmetterlingsLesson.id}?mode=quiz`);
-    vi.useRealTimers();
   });
 
-  it("hides next lesson button for the last lesson", async () => {
-    vi.useFakeTimers();
+  it("hides next lesson button for the last lesson", () => {
     const lastLesson = allLessons[allLessons.length - 1];
     render(<LessonFlow lesson={lastLesson} />);
 
@@ -187,14 +172,11 @@ describe("LessonFlow", () => {
     fireEvent.click(screen.getByLabelText("Quiz starten"));
 
     // Answer all questions (pick first option each time)
-    for (let i = 0; i < lastLesson.questions.length; i++) {
-      const firstOption = lastLesson.questions[i].options[0];
-      fireEvent.click(screen.getByLabelText(firstOption.label));
-      const delay = lastLesson.questions[i].correctOptionId === firstOption.id ? 1200 : 2000;
-      await act(async () => { vi.advanceTimersByTime(delay); });
+    for (const question of lastLesson.questions) {
+      fireEvent.click(screen.getByLabelText(question.options[0].label));
+      fireEvent.click(screen.getByText("Weiter →"));
     }
 
     expect(screen.queryByText("Nächste Lektion")).toBeNull();
-    vi.useRealTimers();
   });
 });

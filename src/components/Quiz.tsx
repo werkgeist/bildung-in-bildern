@@ -70,14 +70,14 @@ export default function Quiz({ questions, onComplete, lessonId, onQuestionAnswer
       });
     }
 
-    const delay = correct ? 1200 : 2000;
-    setTimeout(() => {
-      if (currentIndex < questions.length - 1) {
-        setCurrentIndex((i) => i + 1);
-      } else {
-        onComplete(newScore);
-      }
-    }, delay);
+  };
+
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex((i) => i + 1);
+    } else {
+      onComplete(score);
+    }
   };
 
   return (
@@ -139,6 +139,15 @@ export default function Quiz({ questions, onComplete, lessonId, onQuestionAnswer
           );
         })}
       </div>
+
+      {selected !== null && (
+        <button
+          onClick={handleNext}
+          className="mt-8 w-full py-5 rounded-2xl bg-amber-400 hover:bg-amber-500 active:scale-95 text-white text-xl font-bold transition-all focus-visible:ring-[3px] focus-visible:ring-amber-500 focus-visible:ring-offset-2"
+        >
+          Weiter →
+        </button>
+      )}
     </div>
   );
 }

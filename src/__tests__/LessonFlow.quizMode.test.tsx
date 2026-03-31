@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import LessonFlow from "@/components/LessonFlow";
 import { schmetterlingsLesson } from "@/data/schmetterling";
 
@@ -41,14 +41,13 @@ describe("LessonFlow — Wiederholungs-Modus (?mode=quiz)", () => {
     expect(backLink.getAttribute("href")).toBe("/");
   });
 
-  it("Nochmal button restarts at quiz phase, not the sequence", async () => {
-    vi.useFakeTimers();
+  it("Nochmal button restarts at quiz phase, not the sequence", () => {
     render(<LessonFlow lesson={schmetterlingsLesson} />);
 
     fireEvent.click(screen.getByLabelText("Die Raupe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
     fireEvent.click(screen.getByLabelText("Die Puppe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     expect(screen.getByText("Super gemacht!")).toBeDefined();
 
@@ -56,36 +55,31 @@ describe("LessonFlow — Wiederholungs-Modus (?mode=quiz)", () => {
 
     expect(screen.getByText("Quiz")).toBeDefined();
     expect(screen.queryByText("Vom Ei zum Schmetterling")).toBeNull();
-    vi.useRealTimers();
   });
 
-  it("completes quiz and shows correct result screen", async () => {
-    vi.useFakeTimers();
+  it("completes quiz and shows correct result screen", () => {
     render(<LessonFlow lesson={schmetterlingsLesson} />);
 
     fireEvent.click(screen.getByLabelText("Die Raupe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
     fireEvent.click(screen.getByLabelText("Die Puppe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     expect(screen.getByText("Super gemacht!")).toBeDefined();
     expect(screen.getByText("2 von 2 richtig")).toBeDefined();
-    vi.useRealTimers();
   });
 
   it("saves progress after completing quiz in repeat mode", async () => {
-    vi.useFakeTimers();
     render(<LessonFlow lesson={schmetterlingsLesson} />);
 
     fireEvent.click(screen.getByLabelText("Die Raupe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
     fireEvent.click(screen.getByLabelText("Die Puppe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     const { getProgress } = await import("@/hooks/useProgress");
     const progress = getProgress(schmetterlingsLesson.id);
     expect(progress).not.toBeNull();
     expect(progress?.score).toBe(1);
-    vi.useRealTimers();
   });
 });

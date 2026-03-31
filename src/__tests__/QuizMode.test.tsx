@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import LessonFlow from "@/components/LessonFlow";
 import { schmetterlingsLesson } from "@/data/schmetterling";
 import { markComplete, reset } from "@/hooks/useProgress";
@@ -56,15 +56,14 @@ describe("LessonFlow – quiz mode (?mode=quiz)", () => {
     expect(screen.queryByRole("link", { name: "Zurück zur Lektionsauswahl" })).toBeNull();
   });
 
-  it("Nochmal button in quiz mode restarts quiz (not sequence)", async () => {
+  it("Nochmal button in quiz mode restarts quiz (not sequence)", () => {
     mockSearchParams.set("mode", "quiz");
-    vi.useFakeTimers();
     render(<LessonFlow lesson={schmetterlingsLesson} />);
 
     fireEvent.click(screen.getByLabelText("Die Raupe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
     fireEvent.click(screen.getByLabelText("Die Puppe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     // Now on result screen
     expect(screen.getByText("Super gemacht!")).toBeDefined();
@@ -76,7 +75,6 @@ describe("LessonFlow – quiz mode (?mode=quiz)", () => {
     expect(screen.getByText("Quiz")).toBeDefined();
     expect(screen.getByText("Was kommt nach dem Ei?")).toBeDefined();
     expect(screen.queryByText("Vom Ei zum Schmetterling")).toBeNull();
-    vi.useRealTimers();
   });
 });
 

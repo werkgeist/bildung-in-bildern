@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
 import Quiz from "@/components/Quiz";
 import type { QuizQuestion } from "@/types/lesson";
 import { trackEvent } from "@/lib/analytics";
@@ -39,14 +39,6 @@ const questions: QuizQuestion[] = [
   },
 ];
 
-beforeEach(() => {
-  vi.useFakeTimers();
-});
-
-afterEach(() => {
-  vi.useRealTimers();
-});
-
 describe("Quiz", () => {
   it("renders the question text", () => {
     render(<Quiz questions={questions} onComplete={vi.fn()} />);
@@ -82,8 +74,12 @@ describe("Quiz", () => {
   it("disables options after selection", () => {
     render(<Quiz questions={questions} onComplete={vi.fn()} />);
     fireEvent.click(screen.getByLabelText("Die Raupe"));
-    const buttons = screen.getAllByRole("button") as HTMLButtonElement[];
-    expect(buttons.every((b) => b.disabled)).toBe(true);
+    const optionButtons = [
+      screen.getByLabelText("Die Raupe"),
+      screen.getByLabelText("Der Schmetterling"),
+      screen.getByLabelText("Die Puppe"),
+    ] as HTMLButtonElement[];
+    expect(optionButtons.every((b) => b.disabled)).toBe(true);
   });
 
   it("correct answer button gets green border class", () => {
@@ -122,24 +118,28 @@ describe("Quiz", () => {
     expect(correctBtn.className).toContain("border-green-500");
   });
 
-  it("advances to next question after 1200ms on correct answer", async () => {
+  it("does not show Weiter button before an answer is selected", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    expect(screen.queryByText("Weiter →")).toBeNull();
+  });
+
+  it("shows Weiter button after an answer is selected", () => {
     render(<Quiz questions={questions} onComplete={vi.fn()} />);
     fireEvent.click(screen.getByLabelText("Die Raupe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    expect(screen.getByText("Weiter →")).toBeDefined();
+  });
+
+  it("advances to next question when Weiter button is clicked", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText("Die Raupe"));
+    fireEvent.click(screen.getByText("Weiter →"));
     expect(screen.getByText("Frage 2 von 2")).toBeDefined();
   });
 
-  it("advances to next question after 2000ms on incorrect answer", async () => {
+  it("does not advance without clicking Weiter button", () => {
     render(<Quiz questions={questions} onComplete={vi.fn()} />);
-    fireEvent.click(screen.getByLabelText("Der Schmetterling"));
-
-    // Should NOT advance at 1200ms
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByLabelText("Die Raupe"));
     expect(screen.getByText("Frage 1 von 2")).toBeDefined();
-
-    // Should advance at 2000ms
-    await act(async () => { vi.advanceTimersByTime(800); });
-    expect(screen.getByText("Frage 2 von 2")).toBeDefined();
   });
 
   it("incorrect answer button gets amber shadow (not red)", () => {
@@ -167,15 +167,15 @@ describe("Quiz", () => {
     });
   });
 
-  it("calls onComplete with score after all questions answered", async () => {
+  it("calls onComplete with score after all questions answered via Weiter button", () => {
     const onComplete = vi.fn();
     render(<Quiz questions={questions} onComplete={onComplete} />);
 
     fireEvent.click(screen.getByLabelText("Die Raupe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     fireEvent.click(screen.getByLabelText("Die Puppe"));
-    await act(async () => { vi.advanceTimersByTime(1200); });
+    fireEvent.click(screen.getByText("Weiter →"));
 
     expect(onComplete).toHaveBeenCalledWith(2);
   });
