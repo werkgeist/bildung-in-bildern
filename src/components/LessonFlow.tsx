@@ -91,6 +91,7 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
 
   const total = lesson.questions.length;
   const allCorrect = finalScore === total;
+  const noneCorrect = finalScore === 0;
 
   const currentIndex = allLessons.findIndex((l) => l.id === lesson.id);
   const nextLesson = currentIndex >= 0 && currentIndex < allLessons.length - 1
@@ -100,11 +101,11 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
   return (
     <div className="flex flex-col items-center py-12 px-4 text-center gap-6">
       <div className="text-7xl" aria-hidden>
-        {allCorrect ? "🦋" : "⭐"}
+        {allCorrect ? "🦋" : noneCorrect ? "🔄" : "⭐"}
       </div>
       <div>
         <h1 className="text-3xl font-bold text-amber-700 mb-1">
-          {allCorrect ? "Super gemacht!" : "Gut gemacht!"}
+          {allCorrect ? "Super gemacht!" : noneCorrect ? "Wir schauen uns das nochmal an" : "Gut gemacht!"}
         </h1>
         <p className="text-xl text-gray-600">
           {finalScore} von {total} richtig

@@ -78,6 +78,29 @@ describe("LessonFlow", () => {
     vi.useRealTimers();
   });
 
+  it("shows retry message when all answers are wrong (0 correct)", async () => {
+    vi.useFakeTimers();
+    render(<LessonFlow lesson={schmetterlingsLesson} />);
+    // Skip sequence
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Quiz starten"));
+
+    // Answer both questions wrong
+    fireEvent.click(screen.getByLabelText("Der Schmetterling"));
+    await act(async () => { vi.advanceTimersByTime(2000); });
+
+    fireEvent.click(screen.getByLabelText("Der Schmetterling"));
+    await act(async () => { vi.advanceTimersByTime(2000); });
+
+    expect(screen.getByText("Wir schauen uns das nochmal an")).toBeDefined();
+    expect(screen.getByText("0 von 2 richtig")).toBeDefined();
+    expect(screen.queryByText("Gut gemacht!")).toBeNull();
+    expect(screen.queryByText("Super gemacht!")).toBeNull();
+    vi.useRealTimers();
+  });
+
   it("restarts lesson from result screen", async () => {
     vi.useFakeTimers();
     render(<LessonFlow lesson={schmetterlingsLesson} />);
