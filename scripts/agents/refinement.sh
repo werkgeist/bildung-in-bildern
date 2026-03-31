@@ -14,6 +14,13 @@ TITLE=$(gh_issue_title)
 BODY=$(gh_issue_body)
 COMMENTS=$(gh_issue_comments 5)
 
+# Dedup: skip if already processed
+MARKER="<!-- agent:refinement:v3 -->"
+if echo "$COMMENTS" | grep -q "agent:refinement:v3"; then
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits geprüft (Marker gefunden). Überspringe."
+  exit 0
+fi
+
 # Issue-Body in Datei schreiben — verhindert Prompt-Injection via Issue-Inhalt
 ISSUE_FILE="/tmp/issue-${ISSUE_NUMBER}.md"
 {
@@ -55,7 +62,8 @@ QUESTIONS=$(echo "$RESPONSE" | awk '/^QUESTIONS:/{found=1; next} found{print}')
 log "[$AGENT_NAME] Decision: $DECISION"
 
 if [[ "$DECISION" == "READY" ]]; then
-  gh_comment "**[Refinement]** Issue ist implementierbar ✅
+  gh_comment "${MARKER}
+**[Refinement]** Issue ist implementierbar ✅
 
 **Begründung:** ${REASON}
 
@@ -64,7 +72,8 @@ if [[ "$DECISION" == "READY" ]]; then
   gh_move_to "$STATUS_IN_PROGRESS"
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → In Progress"
 else
-  COMMENT="**[Refinement]** Issue noch nicht implementierbar ⚠️
+  COMMENT="${MARKER}
+**[Refinement]** Issue noch nicht implementierbar ⚠️
 
 **Begründung:** ${REASON}"
 
@@ -76,5 +85,7 @@ ${QUESTIONS}"
   fi
 
   gh_comment "$COMMENT"
-  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bleibt in Ready (Rückfragen gestellt)"
+  # NOT_READY → zurück nach Backlog (nicht in Ready lassen, sonst Endlos-Loop)
+  gh_move_to "$STATUS_BACKLOG"
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Backlog (nicht implementierbar)"
 fi

@@ -10,6 +10,14 @@ source "$(dirname "$0")/_common.sh"
 AGENT_NAME="Test"
 log "[$AGENT_NAME] Starte Tests für Issue #$ISSUE_NUMBER (Item: $ITEM_ID)"
 
+# Dedup: skip if test already ran
+MARKER="<!-- agent:test:v1 -->"
+COMMENTS=$(gh_issue_comments 5)
+if echo "$COMMENTS" | grep -q "agent:test:v1"; then
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits getestet (Marker gefunden). Überspringe."
+  exit 0
+fi
+
 # B3: Nach worktree-merge im clean main arbeiten
 cd "$WORKSPACE"
 git fetch origin main --quiet 2>/dev/null || true
@@ -93,7 +101,8 @@ if $TEST_OK && $BUILD_OK; then
     DEPLOY_SECTION="**Deploy:** ⚠️ ${DEPLOY_WARNING}"
   fi
 
-  gh_comment "**[Test]** Alle Tests bestanden ✅
+  gh_comment "${MARKER}
+**[Test]** Alle Tests bestanden ✅
 
 **pnpm test:** ✅ Grün
 **pnpm build:** ✅ Erfolgreich
@@ -114,7 +123,8 @@ else
   $TEST_OK  && STATUS_ICONS+="**pnpm test:** ✅"$'\n' || STATUS_ICONS+="**pnpm test:** ❌"$'\n'
   $BUILD_OK && STATUS_ICONS+="**pnpm build:** ✅"$'\n' || STATUS_ICONS+="**pnpm build:** ❌"$'\n'
 
-  COMMENT="**[Test]** Tests fehlgeschlagen ❌
+  COMMENT="${MARKER}
+**[Test]** Tests fehlgeschlagen ❌
 
 ${STATUS_ICONS}"
 

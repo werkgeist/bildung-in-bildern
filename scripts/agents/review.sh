@@ -14,6 +14,14 @@ log "[$AGENT_NAME] Starte Code Review für Issue #$ISSUE_NUMBER (Item: $ITEM_ID)
 
 TITLE=$(gh_issue_title)
 BODY=$(gh_issue_body)
+COMMENTS=$(gh_issue_comments 5)
+
+# Dedup: skip if review already ran
+MARKER="<!-- agent:review:v1 -->"
+if echo "$COMMENTS" | grep -q "agent:review:v1"; then
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits reviewed (Marker gefunden). Überspringe."
+  exit 0
+fi
 
 # B3: Nach worktree-merge im clean main arbeiten
 cd "$WORKSPACE"
@@ -96,7 +104,8 @@ FINDINGS=$(echo "$REVIEW" | awk '/^FINDINGS:/{found=1; next} found && /^-/{print
 log "[$AGENT_NAME] Decision: $DECISION"
 
 if [[ "$DECISION" == "APPROVE" ]]; then
-  gh_comment "**[Codex]** Code Review: Approved ✅
+  gh_comment "${MARKER}
+**[Codex]** Code Review: Approved ✅
 
 **Zusammenfassung:** ${SUMMARY}
 
@@ -108,7 +117,8 @@ ${FINDINGS}}
   gh_move_to "$STATUS_TESTING"
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Testing"
 else
-  gh_comment "**[Codex]** Code Review: Changes Requested 🔄
+  gh_comment "${MARKER}
+**[Codex]** Code Review: Changes Requested 🔄
 
 **Zusammenfassung:** ${SUMMARY}
 

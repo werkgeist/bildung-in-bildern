@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # scripts/agents/_common.sh — Gemeinsame Hilfsfunktionen für alle Agent-Scripts
 # Source this with: source "$(dirname "$0")/_common.sh"
+#
+# SECURITY: closed-trust-boundary — nur Repo-Maintainer können Issues erstellen.
 
 set -euo pipefail
 

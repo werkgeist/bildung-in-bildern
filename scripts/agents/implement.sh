@@ -17,6 +17,13 @@ TITLE=$(gh_issue_title)
 BODY=$(gh_issue_body)
 COMMENTS=$(gh_issue_comments 10)
 
+# Dedup: skip if implementation already ran
+MARKER="<!-- agent:implement:v1 -->"
+if echo "$COMMENTS" | grep -q "agent:implement:v1"; then
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits implementiert (Marker gefunden). Überspringe."
+  exit 0
+fi
+
 # B3: Branch und Worktree-Pfad festlegen
 BRANCH="issue-${ISSUE_NUMBER}"
 WORKTREE="/tmp/bib-worktree-${ISSUE_NUMBER}"
@@ -85,7 +92,8 @@ if [[ $EXIT_CODE -eq 0 ]] && [[ "$HEAD_AFTER" != "$HEAD_BEFORE" ]]; then
     log "[$AGENT_NAME] WARNUNG: git push scheint fehlgeschlagen (remote: ${REMOTE_HEAD:0:8}, lokal: ${LOCAL_HEAD:0:8})"
   fi
 
-  gh_comment "**[Claude Code]** Implementierung abgeschlossen ✅
+  gh_comment "${MARKER}
+**[Claude Code]** Implementierung abgeschlossen ✅
 
 **Commit:** \`${LAST_COMMIT}\`
 
@@ -99,7 +107,8 @@ ${CHANGED_FILES}
   gh_move_to "$STATUS_CODE_REVIEW"
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Code Review"
 elif [[ $EXIT_CODE -eq 0 ]] && [[ "$HEAD_AFTER" == "$HEAD_BEFORE" ]]; then
-  gh_comment "**[Claude Code]** Claude lief erfolgreich, hat aber keinen neuen Commit erstellt ⚠️
+  gh_comment "${MARKER}
+**[Claude Code]** Claude lief erfolgreich, hat aber keinen neuen Commit erstellt ⚠️
 
 **Letzter Commit (unverändert):** \`${LAST_COMMIT}\`
 
@@ -107,7 +116,8 @@ elif [[ $EXIT_CODE -eq 0 ]] && [[ "$HEAD_AFTER" == "$HEAD_BEFORE" ]]; then
 
   log "[$AGENT_NAME] Kein neuer Commit nach Claude-Lauf — bleibt in In Progress"
 else
-  gh_comment "**[Claude Code]** Implementierung fehlgeschlagen ❌
+  gh_comment "${MARKER}
+**[Claude Code]** Implementierung fehlgeschlagen ❌
 
 **Exit Code:** $EXIT_CODE
 
