@@ -95,4 +95,32 @@ describe("SequenceViewer", () => {
     render(<SequenceViewer sequence={sequence} onComplete={vi.fn()} />);
     expect(trackEvent).not.toHaveBeenCalled();
   });
+
+  it("shows progress counter on first item", () => {
+    render(<SequenceViewer sequence={sequence} onComplete={vi.fn()} />);
+    expect(screen.getByText("Bild 1 von 3")).toBeDefined();
+  });
+
+  it("updates progress counter after navigating forward", () => {
+    render(<SequenceViewer sequence={sequence} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    expect(screen.getByText("Bild 2 von 3")).toBeDefined();
+  });
+
+  it("shows visible text on back button", () => {
+    render(<SequenceViewer sequence={sequence} onComplete={vi.fn()} />);
+    expect(screen.getByText("Zurück")).toBeDefined();
+  });
+
+  it("shows visible text on next button", () => {
+    render(<SequenceViewer sequence={sequence} onComplete={vi.fn()} />);
+    expect(screen.getByText("Weiter")).toBeDefined();
+  });
+
+  it("shows 'Quiz starten' text on last item", () => {
+    render(<SequenceViewer sequence={sequence} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    expect(screen.getAllByText("Quiz starten").length).toBeGreaterThan(0);
+  });
 });

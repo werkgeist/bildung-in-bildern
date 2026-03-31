@@ -56,17 +56,26 @@ export default function SequenceViewer({ sequence, onComplete, lessonId }: Seque
 
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto px-4">
-      <div className="flex gap-2 mb-6" role="tablist" aria-label="Fortschritt">
-        {sequence.map((_, i) => (
-          <div
-            key={i}
-            role="tab"
-            aria-selected={i === currentIndex}
-            className={`w-3 h-3 rounded-full transition-colors ${
-              i === currentIndex ? "bg-amber-500" : "bg-gray-300"
-            }`}
-          />
-        ))}
+      <div className="flex flex-col items-center gap-2 mb-6">
+        <div className="flex gap-2" role="tablist" aria-label="Fortschritt">
+          {sequence.map((_, i) => (
+            <div
+              key={i}
+              role="tab"
+              aria-selected={i === currentIndex}
+              className={`w-3 h-3 rounded-full transition-colors motion-reduce:transition-none ${
+                i === currentIndex ? "bg-amber-500" : "bg-gray-300"
+              }`}
+            />
+          ))}
+        </div>
+        <p
+          className="text-sm font-medium text-gray-500"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          Bild {currentIndex + 1} von {sequence.length}
+        </p>
       </div>
 
       <div
@@ -85,21 +94,23 @@ export default function SequenceViewer({ sequence, onComplete, lessonId }: Seque
 
       <p className="mt-4 text-2xl font-semibold text-gray-800">{current.label}</p>
 
-      <div className="flex items-center gap-6 mt-6">
+      <div className="flex items-center gap-4 mt-6 w-full">
         <button
           onClick={goPrev}
           disabled={isFirst}
           aria-label="Zurück"
-          className="w-20 h-20 rounded-full bg-gray-100 text-gray-700 text-3xl flex items-center justify-center disabled:opacity-30 active:bg-gray-200 transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl bg-gray-100 text-gray-700 text-lg font-semibold disabled:opacity-30 active:bg-gray-200 transition-colors motion-reduce:transition-none"
         >
-          ←
+          <span aria-hidden="true">←</span>
+          <span>Zurück</span>
         </button>
         <button
           onClick={goNext}
           aria-label={isLast ? "Quiz starten" : "Weiter"}
-          className="w-20 h-20 rounded-full bg-amber-500 text-white text-3xl flex items-center justify-center active:bg-amber-600 transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl bg-amber-500 text-white text-lg font-semibold active:bg-amber-600 transition-colors motion-reduce:transition-none"
         >
-          {isLast ? "✓" : "→"}
+          <span>{isLast ? "Quiz starten" : "Weiter"}</span>
+          <span aria-hidden="true">{isLast ? "✓" : "→"}</span>
         </button>
       </div>
     </div>
