@@ -5,6 +5,13 @@ import LessonFlow from "@/components/LessonFlow";
 import { schmetterlingsLesson } from "@/data/schmetterling";
 import { allLessons, lessonsById } from "@/data/lessons";
 
+// Re-export for testing — mirrors the unexported helper in page.tsx
+function computeDifficulty(questionCount: number): 1 | 2 | 3 {
+  if (questionCount <= 2) return 1;
+  if (questionCount <= 4) return 2;
+  return 3;
+}
+
 describe("allLessons registry", () => {
   it("contains at least 2 lessons", () => {
     expect(allLessons.length).toBeGreaterThanOrEqual(2);
@@ -16,10 +23,10 @@ describe("allLessons registry", () => {
     });
   });
 
-  it("all lessons have difficulty set", () => {
+  it("computed difficulty is always 1, 2 or 3", () => {
     allLessons.forEach((lesson) => {
-      expect(lesson.difficulty).toBeGreaterThanOrEqual(1);
-      expect(lesson.difficulty).toBeLessThanOrEqual(3);
+      const level = computeDifficulty(lesson.questions.length);
+      expect([1, 2, 3]).toContain(level);
     });
   });
 
@@ -58,6 +65,50 @@ describe("Home (LessonPicker)", () => {
         expect(img).toBeDefined();
       }
     });
+  });
+});
+
+describe("computeDifficulty", () => {
+  it("returns 1 for 0-2 questions", () => {
+    expect(computeDifficulty(0)).toBe(1);
+    expect(computeDifficulty(1)).toBe(1);
+    expect(computeDifficulty(2)).toBe(1);
+  });
+
+  it("returns 2 for 3-4 questions", () => {
+    expect(computeDifficulty(3)).toBe(2);
+    expect(computeDifficulty(4)).toBe(2);
+  });
+
+  it("returns 3 for 5+ questions", () => {
+    expect(computeDifficulty(5)).toBe(3);
+    expect(computeDifficulty(10)).toBe(3);
+  });
+});
+
+describe("DifficultyStars rendering", () => {
+  it("renders filled and empty stars matching the aria-label", () => {
+    render(<Home />);
+    // All rendered difficulty indicators share "von 3" in aria-label
+    const diffEls = screen.getAllByLabelText(/Schwierigkeit: \d von 3/);
+    expect(diffEls.length).toBeGreaterThan(0);
+    // Each element must have exactly 3 star spans using ★ or ☆
+    diffEls.forEach((el) => {
+      const spans = Array.from(el.querySelectorAll("span"));
+      expect(spans).toHaveLength(3);
+      spans.forEach((s) => expect(["★", "☆"]).toContain(s.textContent));
+    });
+  });
+
+  it("renders ★☆☆ for a lesson with 2 questions", () => {
+    render(<Home />);
+    // schmetterling has 2 questions → difficulty 1 → ★☆☆
+    const diffEls = screen.getAllByLabelText("Schwierigkeit: 1 von 3");
+    const el = diffEls[0];
+    const spans = Array.from(el.querySelectorAll("span"));
+    expect(spans[0].textContent).toBe("★");
+    expect(spans[1].textContent).toBe("☆");
+    expect(spans[2].textContent).toBe("☆");
   });
 });
 

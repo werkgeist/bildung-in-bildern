@@ -22,17 +22,22 @@ function ProgressLink() {
   );
 }
 
-function DifficultyStars({ level }: { level?: 1 | 2 | 3 }) {
-  const filled = level ?? 1;
+function computeDifficulty(questionCount: number): 1 | 2 | 3 {
+  if (questionCount <= 2) return 1;
+  if (questionCount <= 4) return 2;
+  return 3;
+}
+
+function DifficultyStars({ level }: { level: 1 | 2 | 3 }) {
   return (
-    <div className="flex gap-1" aria-label={`Schwierigkeit: ${filled} von 3`}>
+    <div className="flex gap-1" aria-label={`Schwierigkeit: ${level} von 3`}>
       {[1, 2, 3].map((i) => (
         <span
           key={i}
-          className={i <= filled ? "text-amber-400" : "text-gray-200"}
+          className={i <= level ? "text-amber-400" : "text-gray-300"}
           aria-hidden
         >
-          ★
+          {i <= level ? "★" : "☆"}
         </span>
       ))}
     </div>
@@ -67,7 +72,7 @@ function LessonCard({ lesson }: { lesson: Lesson }) {
         <p className="text-base font-bold text-amber-800 leading-tight line-clamp-2">
           {lesson.title}
         </p>
-        <DifficultyStars level={lesson.difficulty} />
+        <DifficultyStars level={computeDifficulty(lesson.questions.length)} />
       </div>
     </Link>
   );
