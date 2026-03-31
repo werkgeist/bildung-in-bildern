@@ -17,7 +17,9 @@ COMMENTS=$(gh_issue_comments 5)
 # Dedup: skip if already processed
 MARKER="<!-- agent:refinement:v3 -->"
 if echo "$COMMENTS" | grep -q "agent:refinement:v3"; then
-  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits geprüft (Marker gefunden). Überspringe."
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits geprüft (Marker gefunden)."
+  gh_move_to "$STATUS_READY"
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Ready (war stuck nach vorherigem Lauf)"
   gh_unlock
   exit 0
 fi

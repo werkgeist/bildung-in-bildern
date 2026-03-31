@@ -20,7 +20,10 @@ COMMENTS=$(gh_issue_comments 10)
 # Dedup: skip if implementation already ran
 MARKER="<!-- agent:implement:v1 -->"
 if echo "$COMMENTS" | grep -q "agent:implement:v1"; then
-  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits implementiert (Marker gefunden). Überspringe."
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits implementiert (Marker gefunden)."
+  # Issue nach Code Review verschieben falls noch in In Progress (verhindert Endlos-Re-Dispatch)
+  gh_move_to "$STATUS_CODE_REVIEW"
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Code Review (war stuck in In Progress)"
   gh_unlock
   exit 0
 fi

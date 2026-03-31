@@ -19,7 +19,9 @@ COMMENTS=$(gh_issue_comments 5)
 # Dedup: skip if review already ran
 MARKER="<!-- agent:review:v1 -->"
 if echo "$COMMENTS" | grep -q "agent:review:v1"; then
-  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits reviewed (Marker gefunden). Überspringe."
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits reviewed (Marker gefunden)."
+  gh_move_to "$STATUS_TESTING"
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Testing (war stuck nach vorherigem Lauf)"
   gh_unlock
   exit 0
 fi

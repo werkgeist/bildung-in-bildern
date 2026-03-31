@@ -14,7 +14,10 @@ log "[$AGENT_NAME] Starte Tests für Issue #$ISSUE_NUMBER (Item: $ITEM_ID)"
 MARKER="<!-- agent:test:v1 -->"
 COMMENTS=$(gh_issue_comments 5)
 if echo "$COMMENTS" | grep -q "agent:test:v1"; then
-  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits getestet (Marker gefunden). Überspringe."
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits getestet (Marker gefunden)."
+  gh_move_to "$STATUS_DONE"
+  log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Done (war stuck nach vorherigem Lauf)"
+  gh issue close "$ISSUE_NUMBER" --repo "$REPO" 2>/dev/null || true
   gh_unlock
   exit 0
 fi
