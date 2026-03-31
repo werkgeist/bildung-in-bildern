@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import FortschrittPage from "@/app/fortschritt/page";
-import { markComplete } from "@/hooks/useProgress";
+import { markComplete, markViewed } from "@/hooks/useProgress";
 import { allLessons } from "@/data/lessons";
 
 beforeEach(() => {
@@ -18,20 +18,27 @@ describe("FortschrittPage", () => {
     }
   });
 
-  it("shows Abgeschlossen badge on completed lesson", async () => {
+  it("shows Quiz-bestanden badge on passed lesson", async () => {
     markComplete(allLessons[0].id, 1);
     render(<FortschrittPage />);
-    const badges = await screen.findAllByRole("img", { name: "Abgeschlossen" });
+    const badges = await screen.findAllByRole("img", { name: "Quiz bestanden" });
     expect(badges.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("shows Noch nicht gestartet badge for all lessons when none completed", async () => {
+  it("shows Angesehen badge on viewed lesson", async () => {
+    markViewed(allLessons[0].id);
+    render(<FortschrittPage />);
+    const badges = await screen.findAllByRole("img", { name: "Angesehen" });
+    expect(badges.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("shows Noch nicht gestartet badge for all lessons when none started", async () => {
     render(<FortschrittPage />);
     const badges = await screen.findAllByRole("img", { name: "Noch nicht gestartet" });
     expect(badges.length).toBe(allLessons.length);
   });
 
-  it("shows progress count n / total after loading", async () => {
+  it("shows passed count n / total in header", async () => {
     markComplete(allLessons[0].id, 1);
     markComplete(allLessons[1].id, 0.5);
     render(<FortschrittPage />);
@@ -40,11 +47,28 @@ describe("FortschrittPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows 0 / total when no lessons completed", async () => {
+  it("shows 0 / total when no lessons passed", async () => {
     render(<FortschrittPage />);
     expect(
       await screen.findByText(`0 / ${allLessons.length}`)
     ).toBeInTheDocument();
+  });
+
+  it("viewed lessons do not count toward the passed total", async () => {
+    markViewed(allLessons[0].id);
+    markViewed(allLessons[1].id);
+    render(<FortschrittPage />);
+    expect(
+      await screen.findByText(`0 / ${allLessons.length}`)
+    ).toBeInTheDocument();
+  });
+
+  it("failed quiz (score < 0.5) shows Angesehen badge, not Quiz bestanden", async () => {
+    markComplete(allLessons[0].id, 0);
+    render(<FortschrittPage />);
+    const viewed = await screen.findAllByRole("img", { name: "Angesehen" });
+    expect(viewed.length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByRole("img", { name: "Quiz bestanden" })).toBeNull();
   });
 
   it("each lesson card links to its lesson route", async () => {
@@ -62,20 +86,29 @@ describe("FortschrittPage", () => {
     ).toHaveAttribute("href", "/");
   });
 
-  it("only completed lesson has Abgeschlossen badge; rest have Noch nicht gestartet", async () => {
+  it("only passed lesson has Quiz-bestanden badge; rest have Noch nicht gestartet", async () => {
     markComplete(allLessons[0].id, 1);
     render(<FortschrittPage />);
-    const doneBadges = await screen.findAllByRole("img", { name: "Abgeschlossen" });
+    const doneBadges = await screen.findAllByRole("img", { name: "Quiz bestanden" });
     const notDoneBadges = await screen.findAllByRole("img", { name: "Noch nicht gestartet" });
     expect(doneBadges.length).toBe(1);
     expect(notDoneBadges.length).toBe(allLessons.length - 1);
   });
 
-  it("completed lesson card has accessible label indicating completion", async () => {
+  it("passed lesson card has accessible label indicating quiz passed", async () => {
     markComplete(allLessons[0].id, 1);
     render(<FortschrittPage />);
     const link = await screen.findByRole("link", {
-      name: new RegExp(`${allLessons[0].title}.*abgeschlossen`, "i"),
+      name: new RegExp(`${allLessons[0].title}.*Quiz bestanden`, "i"),
+    });
+    expect(link).toBeInTheDocument();
+  });
+
+  it("viewed lesson card has accessible label indicating angesehen", async () => {
+    markViewed(allLessons[0].id);
+    render(<FortschrittPage />);
+    const link = await screen.findByRole("link", {
+      name: new RegExp(`${allLessons[0].title}.*Angesehen`, "i"),
     });
     expect(link).toBeInTheDocument();
   });

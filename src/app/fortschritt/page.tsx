@@ -24,17 +24,20 @@ function LessonProgressCard({
   progress: LessonProgress | null;
 }) {
   const cover = lesson.sequence[0];
-  const done = progress !== null;
+  const status = progress?.status ?? null;
+  const isPassed = status === "passed";
+  const isViewed = status === "viewed";
+  const isDone = isPassed || isViewed;
 
   return (
     <Link
       href={`/lesson/${lesson.id}`}
       className="flex flex-col rounded-2xl overflow-hidden border-2 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
       style={{
-        borderColor: done ? "#22c55e" : "#e5e7eb",
-        backgroundColor: done ? "#f0fdf4" : "#f9fafb",
+        borderColor: isPassed ? "#22c55e" : isViewed ? "#f59e0b" : "#e5e7eb",
+        backgroundColor: isPassed ? "#f0fdf4" : isViewed ? "#fffbeb" : "#f9fafb",
       }}
-      aria-label={`${lesson.title}${done ? ", abgeschlossen" : ", noch nicht gestartet"}`}
+      aria-label={`${lesson.title}${isPassed ? ", Quiz bestanden" : isViewed ? ", Angesehen" : ", Noch nicht gestartet"}`}
     >
       <div className="relative w-full aspect-[4/3] bg-gray-100">
         {cover ? (
@@ -42,7 +45,7 @@ function LessonProgressCard({
             src={cover.src}
             alt={cover.alt}
             fill
-            className={`object-cover ${done ? "" : "opacity-40 grayscale"}`}
+            className={`object-cover ${isDone ? "" : "opacity-40 grayscale"}`}
             sizes="(max-width: 640px) 45vw, 280px"
           />
         ) : (
@@ -51,11 +54,11 @@ function LessonProgressCard({
           </div>
         )}
 
-        {done && (
+        {isPassed && (
           <div
             className="absolute top-2 right-2 w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shadow-md"
             role="img"
-            aria-label="Abgeschlossen"
+            aria-label="Quiz bestanden"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path
@@ -69,7 +72,20 @@ function LessonProgressCard({
           </div>
         )}
 
-        {!done && (
+        {isViewed && (
+          <div
+            className="absolute top-2 right-2 w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center shadow-md"
+            role="img"
+            aria-label="Angesehen"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <ellipse cx="10" cy="10" rx="7" ry="4.5" stroke="white" strokeWidth="2" />
+              <circle cx="10" cy="10" r="2" fill="white" />
+            </svg>
+          </div>
+        )}
+
+        {!isDone && (
           <div
             className="absolute top-2 right-2 w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center shadow-sm"
             role="img"
@@ -85,13 +101,17 @@ function LessonProgressCard({
       <div className="flex flex-col gap-1 p-3 min-h-[72px] justify-center">
         <p
           className={`text-sm font-bold leading-tight line-clamp-2 ${
-            done ? "text-green-800" : "text-gray-400"
+            isPassed ? "text-green-800" : isViewed ? "text-amber-800" : "text-gray-400"
           }`}
         >
           {lesson.title}
         </p>
-        {done && progress ? (
+        {isPassed && progress ? (
           <p className="text-xs text-green-600">
+            {formatDate(progress.completedAt)}
+          </p>
+        ) : isViewed && progress ? (
+          <p className="text-xs text-amber-600">
             {formatDate(progress.completedAt)}
           </p>
         ) : (
@@ -111,7 +131,7 @@ export default function FortschrittPage() {
     setLoaded(true);
   }, []);
 
-  const completedCount = Object.keys(allProgress).length;
+  const passedCount = Object.values(allProgress).filter((p) => p.status === "passed").length;
   const totalCount = allLessons.length;
 
   return (
@@ -138,7 +158,7 @@ export default function FortschrittPage() {
             <h1 className="text-2xl font-bold text-amber-700">Mein Fortschritt</h1>
             {loaded && (
               <p className="text-gray-500 text-base mt-1" aria-live="polite">
-                {completedCount} / {totalCount}
+                {passedCount} / {totalCount}
               </p>
             )}
           </div>

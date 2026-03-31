@@ -7,7 +7,7 @@ import Image from "next/image";
 import type { Lesson } from "@/types/lesson";
 import SequenceViewer from "./SequenceViewer";
 import Quiz from "./Quiz";
-import { markComplete, getProgress } from "@/hooks/useProgress";
+import { markComplete, markViewed, getProgress } from "@/hooks/useProgress";
 import { recordAnswer as recordItemAnswer } from "@/data/item-bank";
 import { allLessons } from "@/data/lessons";
 
@@ -32,7 +32,10 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
     }
   }, [isQuizMode, lesson.id, router]);
 
-  const handleSequenceComplete = () => setPhase("quiz");
+  const handleSequenceComplete = () => {
+    markViewed(lesson.id);
+    setPhase("quiz");
+  };
 
   const handleQuestionAnswered = (questionId: string, correct: boolean) => {
     recordItemAnswer(lesson.id, questionId, correct);

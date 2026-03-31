@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import {
   markComplete,
+  markViewed,
   getProgress,
   getAllProgress,
   reset,
@@ -24,6 +25,20 @@ describe("markComplete", () => {
     expect(store.schmetterling.lastScore).toBe(1);
     expect(store.schmetterling.attempts).toBe(1);
     expect(store.schmetterling.completedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it("sets status 'passed' when score >= 0.5", () => {
+    markComplete("schmetterling", 0.5);
+    expect(getProgress("schmetterling")!.status).toBe("passed");
+    markComplete("wasserkreislauf", 1);
+    expect(getProgress("wasserkreislauf")!.status).toBe("passed");
+  });
+
+  it("sets status 'viewed' when score < 0.5", () => {
+    markComplete("schmetterling", 0);
+    expect(getProgress("schmetterling")!.status).toBe("viewed");
+    markComplete("wasserkreislauf", 0.49);
+    expect(getProgress("wasserkreislauf")!.status).toBe("viewed");
   });
 
   it("increments attempts on repeated calls", () => {
@@ -54,6 +69,52 @@ describe("markComplete", () => {
     markComplete("temperatur", 0.75);
     const p = getProgress("temperatur");
     expect(p?.score).toBe(0.75);
+  });
+});
+
+describe("markViewed", () => {
+  it("saves progress with status 'viewed'", () => {
+    markViewed("schmetterling");
+    const p = getProgress("schmetterling");
+    expect(p).not.toBeNull();
+    expect(p!.status).toBe("viewed");
+    expect(p!.lessonId).toBe("schmetterling");
+  });
+
+  it("does not downgrade from 'passed' to 'viewed'", () => {
+    markComplete("schmetterling", 1);
+    markViewed("schmetterling");
+    expect(getProgress("schmetterling")!.status).toBe("passed");
+  });
+
+  it("does not increment attempts", () => {
+    markViewed("schmetterling");
+    expect(getProgress("schmetterling")!.attempts).toBe(0);
+  });
+
+  it("does not overwrite existing viewed entry", () => {
+    markViewed("schmetterling");
+    const firstTime = getProgress("schmetterling")!.completedAt;
+    markViewed("schmetterling");
+    expect(getProgress("schmetterling")!.completedAt).toBe(firstTime);
+  });
+});
+
+describe("migration: legacy entries without status", () => {
+  it("migrates entries without status to 'viewed'", () => {
+    const legacyStore = {
+      schmetterling: {
+        lessonId: "schmetterling",
+        completedAt: "2026-01-01T00:00:00.000Z",
+        score: 1,
+        attempts: 1,
+        lastScore: 1,
+        // no 'status' field
+      },
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(legacyStore));
+    const p = getProgress("schmetterling");
+    expect(p!.status).toBe("viewed");
   });
 });
 
