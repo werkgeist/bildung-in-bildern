@@ -18,10 +18,10 @@ COMMENTS=$(gh_issue_comments 5)
 MARKER="<!-- agent:refinement:v3 -->"
 if echo "$COMMENTS" | grep -q "agent:refinement:v3"; then
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits geprüft (Marker gefunden)."
-  # Check if previous decision was READY → move to In Progress, else leave in Backlog
-  if echo "$COMMENTS" | grep -q "implementierbar ✅"; then
+  # Check if previous decision was READY or manually approved → move to In Progress
+  if echo "$COMMENTS" | grep -qE "implementierbar ✅|refinement:v3:approved"; then
     gh_move_to "$STATUS_IN_PROGRESS"
-    log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → In Progress (war stuck nach vorherigem READY-Lauf)"
+    log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → In Progress (READY oder manuell approved)"
   else
     gh_move_to "$STATUS_BACKLOG"
     log "[$AGENT_NAME] Issue #$ISSUE_NUMBER → Backlog (war stuck nach vorherigem NOT_READY-Lauf)"
