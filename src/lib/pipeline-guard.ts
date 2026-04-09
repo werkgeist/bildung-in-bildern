@@ -6,7 +6,17 @@
  *
  * Markers are HTML comments posted as GitHub issue comments by each agent stage.
  * A Done/closed issue MUST have all three before the guard allows it to stay closed.
+ *
+ * Rollout boundary: only issues >= GUARD_MIN_ISSUE are subject to the guard.
+ * Issues below this threshold pre-date the pipeline and lack markers by design.
  */
+
+/**
+ * First issue number subject to the pipeline guard.
+ * Issues with number < GUARD_MIN_ISSUE are exempt (historical, pre-pipeline).
+ * Rationale: #52 introduced the guard; everything before it was closed without markers.
+ */
+export const GUARD_MIN_ISSUE = 52;
 
 export interface MarkerResult {
   key: string;
@@ -77,4 +87,12 @@ export function targetColumnForMissing(results: MarkerResult[]): string | null {
  */
 export function needsGuard(commentsText: string): boolean {
   return checkPipelineMarkers(commentsText).some((m) => !m.found);
+}
+
+/**
+ * Returns true if the issue is subject to the pipeline guard.
+ * Issues below GUARD_MIN_ISSUE pre-date the pipeline and are always exempt.
+ */
+export function isGuardEligible(issueNumber: number): boolean {
+  return issueNumber >= GUARD_MIN_ISSUE;
 }

@@ -3,6 +3,8 @@ import {
   checkPipelineMarkers,
   targetColumnForMissing,
   needsGuard,
+  isGuardEligible,
+  GUARD_MIN_ISSUE,
   REQUIRED_MARKERS,
 } from '../../src/lib/pipeline-guard';
 
@@ -146,6 +148,74 @@ describe('pipeline-guard', () => {
         '<!-- agent:test:v1 -->',
       );
       expect(needsGuard(text)).toBe(false);
+    });
+  });
+
+  // ── isGuardEligible — Rollout-Grenze ────────────────────────────────────────
+
+  describe('isGuardEligible', () => {
+    it('GUARD_MIN_ISSUE is 52 (pipeline guard introduced with #52)', () => {
+      expect(GUARD_MIN_ISSUE).toBe(52);
+    });
+
+    it('historisches altes Issue (#1) → nicht guardpflichtig', () => {
+      expect(isGuardEligible(1)).toBe(false);
+    });
+
+    it('historisches Issue (#51, direkt vor Grenze) → nicht guardpflichtig', () => {
+      expect(isGuardEligible(51)).toBe(false);
+    });
+
+    it('Issue #52 (erstes mit Pipeline) → guardpflichtig', () => {
+      expect(isGuardEligible(52)).toBe(true);
+    });
+
+    it('neuere Issues (#53, #100) → guardpflichtig', () => {
+      expect(isGuardEligible(53)).toBe(true);
+      expect(isGuardEligible(100)).toBe(true);
+    });
+  });
+
+  // ── Vollständige Szenarien (Eligibility + Marker kombiniert) ────────────────
+
+  describe('Rollout + Marker kombiniert', () => {
+    it('historisches closed/Done-Issue ohne Marker → NICHT guarden (exempt)', () => {
+      // Altes Issue: needsGuard() wäre true, aber isGuardEligible() ist false → kein Guard
+      const issueNumber = 10;
+      const commentsText = ''; // keine Marker
+      expect(isGuardEligible(issueNumber)).toBe(false);
+      // Guard greift nur wenn BEIDE zutreffen:
+      expect(isGuardEligible(issueNumber) && needsGuard(commentsText)).toBe(false);
+    });
+
+    it('neues Issue ohne Marker → guarden', () => {
+      const issueNumber = 60;
+      const commentsText = '';
+      expect(isGuardEligible(issueNumber)).toBe(true);
+      expect(needsGuard(commentsText)).toBe(true);
+      expect(isGuardEligible(issueNumber) && needsGuard(commentsText)).toBe(true);
+    });
+
+    it('neues Issue nur mit dev-Marker → zurück zu Code Review', () => {
+      const commentsText = comments('<!-- agent:dev:v1 -->');
+      const results = checkPipelineMarkers(commentsText);
+      expect(targetColumnForMissing(results)).toBe('STATUS_CODE_REVIEW');
+    });
+
+    it('neues Issue mit dev + review → zurück zu Testing', () => {
+      const commentsText = comments('<!-- agent:dev:v1 -->', '<!-- agent:review:v1 -->');
+      const results = checkPipelineMarkers(commentsText);
+      expect(targetColumnForMissing(results)).toBe('STATUS_TESTING');
+    });
+
+    it('Issue mit allen drei Markern → nicht guarden', () => {
+      const commentsText = comments(
+        '<!-- agent:dev:v1 -->',
+        '<!-- agent:review:v1 -->',
+        '<!-- agent:test:v1 -->',
+      );
+      expect(needsGuard(commentsText)).toBe(false);
+      expect(targetColumnForMissing(checkPipelineMarkers(commentsText))).toBeNull();
     });
   });
 });

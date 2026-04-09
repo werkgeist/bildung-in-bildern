@@ -246,6 +246,11 @@ const REQUIRED_MARKERS = [
   { key: 'test',   pattern: /agent:test:v1/,              targetStatus: 'STATUS_TESTING',       label: 'Testing' },
 ];
 
+// Rollout boundary: only issues >= GUARD_MIN_ISSUE are subject to the guard.
+// Issues below this number pre-date the pipeline and were closed without markers by design.
+// Rationale: #52 introduced the pipeline guard; all earlier closes are legitimate.
+const GUARD_MIN_ISSUE = 52;
+
 function checkMarkers(commentsText) {
   return REQUIRED_MARKERS.map((m) => ({ ...m, found: m.pattern.test(commentsText) }));
 }
@@ -263,6 +268,12 @@ async function guardClosedAndDone(items) {
   for (const item of items) {
     const issue = item.content;
     if (!issue || !issue.number) continue;
+
+    // Exempt historical issues that pre-date the pipeline guard (closes were legitimate)
+    if (issue.number < GUARD_MIN_ISSUE) {
+      dbg(`#${issue.number}: vor Rollout-Grenze (< ${GUARD_MIN_ISSUE}) — Guard übersprungen.`);
+      continue;
+    }
 
     const status = getItemStatus(item);
     const isClosed = issue.state === 'CLOSED';
