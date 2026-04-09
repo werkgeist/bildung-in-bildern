@@ -207,6 +207,15 @@ describe("Quiz", () => {
     );
   });
 
+  it("renders option labels below images, not as dark overlays on the image", () => {
+    render(<Quiz questions={questions} onComplete={vi.fn()} />);
+    // Label text must not live inside an absolutely-positioned overlay element
+    const labelEl = screen.getByText("Die Raupe");
+    expect(labelEl.closest('[class*="absolute"]')).toBeNull();
+    // Label must not be inside a dark overlay (bg-black/*)
+    expect(labelEl.parentElement?.className).not.toMatch(/bg-black/);
+  });
+
   it("does not call trackEvent when lessonId is not provided", () => {
     vi.mocked(trackEvent).mockClear();
     render(<Quiz questions={questions} onComplete={vi.fn()} />);

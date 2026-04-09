@@ -122,19 +122,19 @@ export default function Quiz({ questions, onComplete, lessonId, onQuestionAnswer
               disabled={selected !== null}
               aria-label={option.label}
               aria-pressed={isSelected}
-              className={`relative aspect-square rounded-xl overflow-hidden bg-amber-50 ${borderClass} ${shadowClass} ${pulseClass} transition-all active:scale-95 focus-visible:ring-[3px] focus-visible:ring-amber-500 focus-visible:ring-offset-2`}
+              className={`flex flex-col rounded-xl bg-amber-50 ${borderClass} ${shadowClass} ${pulseClass} transition-all active:scale-95 focus-visible:ring-[3px] focus-visible:ring-amber-500 focus-visible:ring-offset-2`}
             >
-              <Image
-                src={option.imageSrc}
-                alt={option.label}
-                fill
-                className="object-cover"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-black/30 px-1 py-0.5">
-                <p className="text-white text-xs text-center font-medium">
-                  {option.label}
-                </p>
+              <div className="relative aspect-square w-full overflow-hidden rounded-t-xl">
+                <Image
+                  src={option.imageSrc}
+                  alt={option.label}
+                  fill
+                  className="object-cover"
+                />
               </div>
+              <p className="text-gray-700 text-xs text-center font-medium py-1 px-1 leading-tight">
+                {option.label}
+              </p>
             </button>
           );
         })}
