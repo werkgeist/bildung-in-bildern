@@ -86,6 +86,8 @@ CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null | head -20 |
 LAST_COMMIT=$(git log --oneline -1 2>/dev/null || echo "kein Commit")
 
 if [[ $EXIT_CODE -eq 0 ]] && [[ "$HEAD_AFTER" != "$HEAD_BEFORE" ]]; then
+  # Sicherheitscheck: WORKSPACE muss auf main und clean sein, bevor gemergt wird
+  assert_workspace_safe "main"
   # Merge Branch zurück in den Haupt-Workspace und push
   cd "$WORKSPACE"
   git merge "$BRANCH" --no-edit
