@@ -18,8 +18,9 @@ BODY=$(gh_issue_body)
 COMMENTS=$(gh_issue_comments 10)
 
 # Dedup: skip if implementation already ran
-MARKER="<!-- agent:implement:v1 -->"
-if echo "$COMMENTS" | grep -q "agent:implement:v1"; then
+# Accept both agent:dev:v1 (new, per pipeline-guard spec) and agent:implement:v1 (legacy)
+MARKER="<!-- agent:dev:v1 -->"
+if echo "$COMMENTS" | grep -qE "agent:(dev|implement):v1"; then
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits implementiert (Marker gefunden)."
   # Issue nach Code Review verschieben falls noch in In Progress (verhindert Endlos-Re-Dispatch)
   gh_move_to "$STATUS_CODE_REVIEW"
