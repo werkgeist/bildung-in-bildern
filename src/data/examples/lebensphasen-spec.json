@@ -64,7 +64,7 @@
     {
       "id": "lebensphasen-einfach-step-4",
       "order": 4,
-      "label": "Junger Erwachsener",
+      "label": "Ausbildung",
       "alt": "Ein junger Erwachsener in Arbeitskleidung lernt einen Beruf",
       "concept": "Als junger Erwachsener macht man eine Ausbildung und lernt einen Beruf",
       "conceptTags": ["ausbildung", "beruf", "erwachsen"],
@@ -153,6 +153,36 @@
         }
       ],
       "hint": "Nach der Ausbildung geht man jeden Tag zur Arbeit",
+      "difficulty": 1
+    },
+    {
+      "id": "lebensphasen-einfach-q-3",
+      "type": "mc-image",
+      "testsConcepts": ["baby", "anfang", "geburt"],
+      "questionText": "Was ist der erste Schritt im Leben?",
+      "options": [
+        {
+          "id": "lebensphasen-einfach-q-3-opt-1",
+          "label": "Baby in einer Wiege",
+          "stepRef": "lebensphasen-einfach-step-1",
+          "isCorrect": true
+        },
+        {
+          "id": "lebensphasen-einfach-q-3-opt-2",
+          "label": "Kind in der Schule",
+          "stepRef": "lebensphasen-einfach-step-3",
+          "isCorrect": false,
+          "distractorReason": "Schule kommt später, nicht am Anfang"
+        },
+        {
+          "id": "lebensphasen-einfach-q-3-opt-3",
+          "label": "Junger Erwachsener in der Ausbildung",
+          "stepRef": "lebensphasen-einfach-step-4",
+          "isCorrect": false,
+          "distractorReason": "Ausbildung kommt viel später"
+        }
+      ],
+      "hint": "Jeder Mensch beginnt ganz klein — als Baby",
       "difficulty": 1
     }
   ],

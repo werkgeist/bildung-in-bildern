@@ -112,8 +112,8 @@ describe("Wasserkreislauf lesson data", () => {
     expect(labels).toContain("Sammlung");
   });
 
-  it("has exactly 1 quiz question (mc-image only, sequence type filtered)", () => {
-    expect(wasserkreislaufLesson.questions).toHaveLength(1);
+  it("has exactly 2 quiz questions (mc-image only, sequence type filtered)", () => {
+    expect(wasserkreislaufLesson.questions).toHaveLength(2);
   });
 
   it("quiz question asks about rain (Niederschlag)", () => {

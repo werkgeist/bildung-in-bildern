@@ -152,6 +152,36 @@
       ],
       "hint": "Suche Tropfen, die nach unten fallen",
       "difficulty": 1
+    },
+    {
+      "id": "wasserkreislauf-einfach-q-3",
+      "type": "mc-image",
+      "testsConcepts": ["verdunstung", "sonne", "dampf"],
+      "questionText": "Welches Bild zeigt Verdunstung?",
+      "options": [
+        {
+          "id": "wasserkreislauf-einfach-q-3-opt-1",
+          "label": "Sonne wärmt Wasser, Dampf steigt auf",
+          "stepRef": "wasserkreislauf-einfach-step-1",
+          "isCorrect": true
+        },
+        {
+          "id": "wasserkreislauf-einfach-q-3-opt-2",
+          "label": "Regen fällt aus einer Wolke",
+          "stepRef": "wasserkreislauf-einfach-step-3",
+          "isCorrect": false,
+          "distractorReason": "Das ist Niederschlag, nicht Verdunstung"
+        },
+        {
+          "id": "wasserkreislauf-einfach-q-3-opt-3",
+          "label": "Wasser sammelt sich im See",
+          "stepRef": "wasserkreislauf-einfach-step-4",
+          "isCorrect": false,
+          "distractorReason": "Das ist Sammlung, nicht Verdunstung"
+        }
+      ],
+      "hint": "Verdunstung: Wasser geht als Dampf nach oben — die Sonne wärmt es",
+      "difficulty": 1
     }
   ],
   "style": {

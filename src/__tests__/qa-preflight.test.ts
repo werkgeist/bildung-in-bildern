@@ -507,6 +507,119 @@ describe("checkDistractorPlausibility", () => {
   });
 });
 
+// ─── Regression #46: lebensphasen q-2 muss gezeigten Label referenzieren ──────────
+
+describe("lebensphasen q-2 — zeigen→prüfen Alignment (Regression #46)", () => {
+  it("Fragetext referenziert 'Ausbildung' — dieser Label muss in einem Step vorkommen", () => {
+    const q2 = lebensphasenSpec.questions.find(
+      (q) => q.id === "lebensphasen-einfach-q-2"
+    );
+    expect(q2).toBeDefined();
+    // questionText uses the word "Ausbildung" — it must appear as a step label
+    const shownLabels = lebensphasenSpec.steps.map((s) =>
+      s.label.toLowerCase()
+    );
+    expect(shownLabels).toContain("ausbildung");
+  });
+
+  it("korrekte Antwort in q-2 zeigt auf step-5 (Arbeit)", () => {
+    const q2 = lebensphasenSpec.questions.find(
+      (q) => q.id === "lebensphasen-einfach-q-2"
+    );
+    const correct = q2!.options.find((o) => o.isCorrect);
+    expect(correct?.stepRef).toBe("lebensphasen-einfach-step-5");
+  });
+});
+
+// ─── Regression #44/#45: Wasserkreislauf und Lebensphasen — min. 3 Quiz-Fragen ───
+
+describe("wasserkreislauf — min. Quiz-Tiefe (Regression #44)", () => {
+  it("hat mindestens 3 Fragen", () => {
+    expect(wasserkreislaufSpec.questions.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("q-3 testet Verdunstung (step-1)", () => {
+    const q3 = wasserkreislaufSpec.questions.find(
+      (q) => q.id === "wasserkreislauf-einfach-q-3"
+    );
+    expect(q3).toBeDefined();
+    const correct = q3!.options.find((o) => o.isCorrect);
+    expect(correct?.stepRef).toBe("wasserkreislauf-einfach-step-1");
+  });
+
+  it("q-3 testsConcepts enthält 'verdunstung'", () => {
+    const q3 = wasserkreislaufSpec.questions.find(
+      (q) => q.id === "wasserkreislauf-einfach-q-3"
+    );
+    expect(q3?.testsConcepts).toContain("verdunstung");
+  });
+
+  it("q-3 hat keine doppelten stepRefs zwischen Optionen", () => {
+    const q3 = wasserkreislaufSpec.questions.find(
+      (q) => q.id === "wasserkreislauf-einfach-q-3"
+    );
+    const refs = q3!.options.map((o) => o.stepRef).filter(Boolean);
+    expect(new Set(refs).size).toBe(refs.length);
+  });
+});
+
+describe("lebensphasen — min. Quiz-Tiefe (Regression #45)", () => {
+  it("hat mindestens 3 Fragen", () => {
+    expect(lebensphasenSpec.questions.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("q-3 testet Baby (step-1)", () => {
+    const q3 = lebensphasenSpec.questions.find(
+      (q) => q.id === "lebensphasen-einfach-q-3"
+    );
+    expect(q3).toBeDefined();
+    const correct = q3!.options.find((o) => o.isCorrect);
+    expect(correct?.stepRef).toBe("lebensphasen-einfach-step-1");
+  });
+
+  it("q-3 testsConcepts enthält 'baby'", () => {
+    const q3 = lebensphasenSpec.questions.find(
+      (q) => q.id === "lebensphasen-einfach-q-3"
+    );
+    expect(q3?.testsConcepts).toContain("baby");
+  });
+
+  it("q-3 hat keine doppelten stepRefs zwischen Optionen", () => {
+    const q3 = lebensphasenSpec.questions.find(
+      (q) => q.id === "lebensphasen-einfach-q-3"
+    );
+    const refs = q3!.options.map((o) => o.stepRef).filter(Boolean);
+    expect(new Set(refs).size).toBe(refs.length);
+  });
+});
+
+// ─── Regression #43: Temperatur q-1 darf step-4 (heiß) nicht als Distraktor haben ──
+
+describe("temperatur q-1 — Distraktor-Mehrdeutigkeit (Regression #43)", () => {
+  it("Distraktor für 'warm'-Frage zeigt nicht auf step-4 (heiß/Wüste — zu nah an 'warm')", () => {
+    const q1 = temperaturSpec.questions.find(
+      (q) => q.id === "temperatur-einfach-q-1"
+    );
+    expect(q1).toBeDefined();
+    const distractorStepRefs = q1!.options
+      .filter((o) => !o.isCorrect)
+      .map((o) => o.stepRef);
+    expect(distractorStepRefs).not.toContain("temperatur-einfach-step-4");
+  });
+
+  it("'warm'-Frage hat genau 2 Distraktoren aus klar unterschiedlichen Konzepten (kalt/kühl)", () => {
+    const q1 = temperaturSpec.questions.find(
+      (q) => q.id === "temperatur-einfach-q-1"
+    );
+    const distractorStepRefs = q1!.options
+      .filter((o) => !o.isCorrect)
+      .map((o) => o.stepRef);
+    // Beide Distraktoren müssen auf der kühlen/kalten Seite liegen
+    expect(distractorStepRefs).toContain("temperatur-einfach-step-1"); // kalt
+    expect(distractorStepRefs).toContain("temperatur-einfach-step-2"); // kühl
+  });
+});
+
 // ─── Absichtlich fehlerhafte Spec → muss fehlschlagen ────────
 
 describe("runAllChecks — absichtlich fehlerhafte Spec", () => {
