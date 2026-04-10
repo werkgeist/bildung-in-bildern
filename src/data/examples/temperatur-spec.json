@@ -116,10 +116,10 @@
         },
         {
           "id": "temperatur-einfach-q-1-opt-3",
-          "label": "Wüste mit großer Sonne",
-          "stepRef": "temperatur-einfach-step-4",
+          "label": "Herbstpark mit bunten Blättern",
+          "stepRef": "temperatur-einfach-step-2",
           "isCorrect": false,
-          "distractorReason": "Das ist heiß, nicht warm"
+          "distractorReason": "Das ist kühl (Herbst), nicht warm"
         }
       ],
       "hint": "Warm ist angenehm — Blumen und grüne Wiese",
