@@ -18,8 +18,9 @@ BODY=$(gh_issue_body)
 COMMENTS=$(gh_issue_comments 10)
 
 # Dedup: skip if implementation already ran
-MARKER="<!-- agent:implement:v1 -->"
-if echo "$COMMENTS" | grep -q "agent:implement:v1"; then
+# Accept both agent:dev:v1 (new, per pipeline-guard spec) and agent:implement:v1 (legacy)
+MARKER="<!-- agent:dev:v1 -->"
+if echo "$COMMENTS" | grep -qE "agent:(dev|implement):v1"; then
   log "[$AGENT_NAME] Issue #$ISSUE_NUMBER bereits implementiert (Marker gefunden)."
   # Issue nach Code Review verschieben falls noch in In Progress (verhindert Endlos-Re-Dispatch)
   gh_move_to "$STATUS_CODE_REVIEW"
@@ -85,6 +86,8 @@ CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null | head -20 |
 LAST_COMMIT=$(git log --oneline -1 2>/dev/null || echo "kein Commit")
 
 if [[ $EXIT_CODE -eq 0 ]] && [[ "$HEAD_AFTER" != "$HEAD_BEFORE" ]]; then
+  # Sicherheitscheck: WORKSPACE muss auf main und clean sein, bevor gemergt wird
+  assert_workspace_safe "main"
   # Merge Branch zurück in den Haupt-Workspace und push
   cd "$WORKSPACE"
   git merge "$BRANCH" --no-edit

@@ -232,6 +232,136 @@ function addLockLabel(issueNumber) {
     '--repo', CFG.REPO);
 }
 
+// ── Pipeline Guard ────────────────────────────────────────────────────────────
+// Detects issues that are CLOSED or in Done without all three required agent
+// markers. Such issues were closed outside the proper pipeline (e.g. #46).
+// Action: post explanatory comment → reopen (if closed) → move to target column.
+//
+// Marker logic is duplicated in src/lib/pipeline-guard.ts for testability.
+// Keep both in sync when adding new markers.
+
+const REQUIRED_MARKERS = [
+  { key: 'dev',    pattern: /agent:(?:dev|implement):v1/, targetStatus: 'STATUS_IN_PROGRESS', label: 'Implementierung' },
+  { key: 'review', pattern: /agent:review:v1/,            targetStatus: 'STATUS_CODE_REVIEW',  label: 'Code Review' },
+  { key: 'test',   pattern: /agent:test:v1/,              targetStatus: 'STATUS_TESTING',       label: 'Testing' },
+];
+
+// Rollout boundary: only issues >= GUARD_MIN_ISSUE are subject to the guard.
+// Issues below this number pre-date the pipeline and were closed without markers by design.
+// Rationale: #52 introduced the pipeline guard; all earlier closes are legitimate.
+const GUARD_MIN_ISSUE = 52;
+
+function checkMarkers(commentsText) {
+  return REQUIRED_MARKERS.map((m) => ({ ...m, found: m.pattern.test(commentsText) }));
+}
+
+function targetColumnForMissing(results) {
+  for (const m of results) {
+    if (!m.found) return m.targetStatus;
+  }
+  return null;
+}
+
+async function guardClosedAndDone(items) {
+  let guarded = 0;
+
+  for (const item of items) {
+    const issue = item.content;
+    if (!issue || !issue.number) continue;
+
+    // Exempt historical issues that pre-date the pipeline guard (closes were legitimate)
+    if (issue.number < GUARD_MIN_ISSUE) {
+      dbg(`#${issue.number}: vor Rollout-Grenze (< ${GUARD_MIN_ISSUE}) — Guard übersprungen.`);
+      continue;
+    }
+
+    const status = getItemStatus(item);
+    const isClosed = issue.state === 'CLOSED';
+    const isDone   = status === 'Done';
+
+    if (!isClosed && !isDone) continue;
+
+    // Fetch all issue comments (not just the last 5 from the board query)
+    let allComments = '';
+    try {
+      allComments = ghRun('issue', 'view', String(issue.number),
+        '--repo', CFG.REPO,
+        '--json', 'comments',
+        '--jq', '[.comments[].body] | join("\n")');
+    } catch (e) {
+      warn(`#${issue.number}: Konnte Kommentare nicht laden (Guard): ${e.message}`);
+      continue;
+    }
+
+    // Skip items already processed by the guard (avoid repeated comments on re-polls)
+    if (allComments.includes('pipeline-guard:v1')) {
+      dbg(`#${issue.number}: Guard-Kommentar bereits vorhanden — übersprungen.`);
+      continue;
+    }
+
+    const markerResults = checkMarkers(allComments);
+    const missing = markerResults.filter((m) => !m.found);
+
+    if (missing.length === 0) {
+      dbg(`#${issue.number}: Pipeline-Marker vollständig ✅`);
+      continue;
+    }
+
+    const target = targetColumnForMissing(markerResults);
+    const targetLabel = target.replace('STATUS_', '').replace('_', ' ');
+    const missingList = missing
+      .map((m) => `- \`<!-- agent:${m.key}:v1 -->\` (${m.label})`)
+      .join('\n');
+
+    log(`#${issue.number}: [Guard] prozesswidrig ${isClosed ? 'geschlossen' : 'in Done'} — Marker fehlen: ${missing.map((m) => m.key).join(', ')} → ${targetLabel}`);
+
+    if (DRYRUN) {
+      log(`  [DRYRUN] würde ${isClosed ? 'reopenen + ' : ''}nach "${targetLabel}" verschieben`);
+      continue;
+    }
+
+    try {
+      const guardComment = `<!-- pipeline-guard:v1 -->
+**[Pipeline Guard]** ⛔ Issue prozesswidrig ${isClosed ? 'geschlossen' : 'nach Done verschoben'}.
+
+Fehlende Pflicht-Marker:
+${missingList}
+
+Alle drei Marker müssen vorhanden sein, bevor ein Issue Done/closed sein darf:
+- \`<!-- agent:dev:v1 -->\` — Implementierung durch Agent
+- \`<!-- agent:review:v1 -->\` — Code Review durch Agent
+- \`<!-- agent:test:v1 -->\` — Tests durch Agent
+
+→ Verschiebe zurück nach _${targetLabel}_.`;
+
+      ghRun('issue', 'comment', String(issue.number),
+        '--body', guardComment,
+        '--repo', CFG.REPO);
+
+      if (isClosed) {
+        ghRun('issue', 'reopen', String(issue.number), '--repo', CFG.REPO);
+        log(`#${issue.number}: Issue wiedereröffnet.`);
+      }
+
+      const moveQuery = `mutation {
+        updateProjectV2ItemFieldValue(input: {
+          projectId: "${CFG.BOARD_ID}"
+          itemId: "${item.id}"
+          fieldId: "${CFG.STATUS_FIELD_ID}"
+          value: { singleSelectOptionId: "${CFG[target]}" }
+        }) { projectV2Item { id } }
+      }`;
+      ghGraphQL(moveQuery);
+      log(`#${issue.number}: → ${targetLabel} ✅`);
+      guarded++;
+    } catch (e) {
+      warn(`#${issue.number}: Guard-Aktion fehlgeschlagen: ${e.message}`);
+    }
+  }
+
+  if (guarded > 0) log(`Pipeline-Guard: ${guarded} Issue(s) zurückgesetzt.`);
+}
+
 // ── Auto-Prioritization (1x täglich) ─────────────────────────────────────────
 
 const PRIORITY_LABELS = {
@@ -425,6 +555,9 @@ async function poll() {
   }
 
   if (autoMoved > 0) log(`${autoMoved} Item(s) automatisch nach Backlog verschoben.`);
+
+  // Pipeline Guard: enforce required markers on Done/closed issues
+  await guardClosedAndDone(items);
 
   // Daily auto-prioritize
   autoPrioritize(items, state);

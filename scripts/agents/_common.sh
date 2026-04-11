@@ -77,6 +77,59 @@ gh_issue_title() {
   gh issue view "$ISSUE_NUMBER" --repo "$REPO" --json title -q '.title'
 }
 
+# ── Workspace Safety Guard ────────────────────────────────────────────────────
+#
+# assert_workspace_safe [expected_branch]
+#
+# Prüft vor jedem destructiven Git-Vorgang (merge, reset):
+#   1. WORKSPACE ist auf dem erwarteten Branch (Standard: main)
+#   2. Working tree ist sauber (keine uncommitted changes)
+#
+# Bei Verletzung: GitHub-Kommentar posten, mit die() abbrechen.
+# NIEMALS selbst resetten oder mergen — das ist Aufgabe des Aufrufers.
+#
+assert_workspace_safe() {
+  local expected_branch="${1:-main}"
+
+  # 1) Branch-Check
+  local current_branch
+  current_branch=$(git -C "$WORKSPACE" symbolic-ref --short HEAD 2>/dev/null || echo "DETACHED")
+
+  if [[ "$current_branch" != "$expected_branch" ]]; then
+    gh_comment "**[Pipeline-Guard]** Workspace-Sicherheitscheck fehlgeschlagen ⛔
+
+**Erwarteter Branch:** \`${expected_branch}\`
+**Aktueller Branch:** \`${current_branch}\`
+
+Pipeline abgebrochen — **kein Reset, kein Merge, kein Datenverlust**.
+Bitte WORKSPACE manuell auf \`${expected_branch}\` bringen und erneut triggern.
+
+→ Issue bleibt in aktueller Stage."
+    die "WORKSPACE ist auf Branch '${current_branch}', erwartet '${expected_branch}'. Abbruch ohne destructive Aktion."
+  fi
+
+  # 2) Dirty-Check
+  local dirty
+  dirty=$(git -C "$WORKSPACE" status --porcelain 2>/dev/null)
+
+  if [[ -n "$dirty" ]]; then
+    gh_comment "**[Pipeline-Guard]** Workspace-Sicherheitscheck fehlgeschlagen ⛔
+
+**Workspace ist nicht sauber (dirty working tree):**
+\`\`\`
+$(echo "$dirty" | head -20)
+\`\`\`
+
+Pipeline abgebrochen — **kein Reset, kein Merge, kein Datenverlust**.
+Bitte uncommitted changes manuell sichern/committen und erneut triggern.
+
+→ Issue bleibt in aktueller Stage."
+    die "WORKSPACE ist dirty. Abbruch ohne destructive Aktion."
+  fi
+
+  log "[Guard] WORKSPACE OK: Branch='${current_branch}', clean working tree."
+}
+
 # Trap: Log on exit, but do NOT unlock — lock stays until agent explicitly calls gh_unlock.
 # This prevents the poller from re-dispatching on crash/error.
 # The poller's lock-timeout mechanism (LOCK_TIMEOUT_MINUTES) will clean up stuck locks.

@@ -22,10 +22,11 @@ if echo "$COMMENTS" | grep -q "agent:test:v1"; then
   exit 0
 fi
 
-# B3: Nach worktree-merge im clean main arbeiten
+# B3: Sicherheitscheck vor git-Operationen — kein Reset bei dirty/falschem Branch
+assert_workspace_safe "main"
 cd "$WORKSPACE"
 git fetch origin main --quiet 2>/dev/null || true
-git merge --ff-only origin/main 2>/dev/null || git reset --hard origin/main
+git merge --ff-only origin/main
 
 TEST_OUTPUT=""
 BUILD_OUTPUT=""
