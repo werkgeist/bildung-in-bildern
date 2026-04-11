@@ -6,16 +6,9 @@ const COOKIE_NAME = "bib-access-token";
 const COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days
 
 const SKIP_PREFIXES = ["/api/", "/dashboard"];
-const STATIC_EXTENSIONS = [
-  ".js", ".css", ".png", ".jpg", ".jpeg", ".webp", ".avif",
-  ".svg", ".ico", ".woff", ".woff2", ".json", ".xml", ".txt",
-];
 
 function shouldSkip(pathname: string): boolean {
-  if (SKIP_PREFIXES.some((p) => pathname.startsWith(p))) return true;
-  if (STATIC_EXTENSIONS.some((ext) => pathname.endsWith(ext))) return true;
-  if (pathname.startsWith("/_next/")) return true;
-  return false;
+  return SKIP_PREFIXES.some((p) => pathname.startsWith(p));
 }
 
 function getCookieValue(request: Request, name: string): string | null {
@@ -64,7 +57,10 @@ export async function onRequest(context: {
 
   const expectedToken = env.ACCESS_TOKEN;
   if (!expectedToken) {
-    return context.next();
+    return new Response(gateHTML(), {
+      status: 503,
+      headers: { "Content-Type": "text/html;charset=UTF-8" },
+    });
   }
 
   const urlToken = url.searchParams.get("token");

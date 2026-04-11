@@ -54,10 +54,12 @@ describe("Edge middleware handler", async () => {
     };
   }
 
-  it("passes through when ACCESS_TOKEN is not configured", async () => {
+  it("returns 503 when ACCESS_TOKEN is not configured (fail closed)", async () => {
     const ctx = makeContext("https://app.example.com/", undefined, undefined);
     const res = await mod.onRequest(ctx);
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(503);
+    const html = await res.text();
+    expect(html).toContain("Kein Zugang");
   });
 
   it("returns 403 when no cookie and no ?token param", async () => {
@@ -132,10 +134,30 @@ describe("Edge middleware handler", async () => {
     expect(res.status).toBe(200);
   });
 
-  it("skips static assets", async () => {
+  it("gates static assets (no skip for .js/.css/etc.)", async () => {
     const ctx = makeContext(
       "https://app.example.com/main.js",
       undefined,
+      "secret"
+    );
+    const res = await mod.onRequest(ctx);
+    expect(res.status).toBe(403);
+  });
+
+  it("gates /_next/ assets", async () => {
+    const ctx = makeContext(
+      "https://app.example.com/_next/static/chunks/main.js",
+      undefined,
+      "secret"
+    );
+    const res = await mod.onRequest(ctx);
+    expect(res.status).toBe(403);
+  });
+
+  it("passes static assets with valid cookie", async () => {
+    const ctx = makeContext(
+      "https://app.example.com/_next/static/chunks/main.js",
+      "bib-access-token=secret",
       "secret"
     );
     const res = await mod.onRequest(ctx);
