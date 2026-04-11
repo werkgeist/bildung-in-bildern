@@ -104,7 +104,7 @@ export default function LessonFlow({ lesson }: LessonFlowProps) {
   return (
     <div className="flex flex-col items-center py-12 px-4 text-center gap-6">
       <div className="text-7xl" aria-hidden>
-        {allCorrect ? "🦋" : noneCorrect ? "🔄" : <span className="text-amber-400">★</span>}
+        {allCorrect ? "⭐" : noneCorrect ? "🔄" : <span className="text-amber-400">★</span>}
       </div>
       <div>
         <h1 className="text-3xl font-bold text-amber-700 mb-1">

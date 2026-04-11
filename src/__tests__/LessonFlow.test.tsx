@@ -95,6 +95,23 @@ describe("LessonFlow", () => {
     expect(screen.queryByText("Super gemacht!")).toBeNull();
   });
 
+  it("zeigt ⭐ (kein lektionsspezifisches Emoji) bei vollständig richtigem Quiz", () => {
+    render(<LessonFlow lesson={schmetterlingsLesson} />);
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Weiter"));
+    fireEvent.click(screen.getByLabelText("Quiz starten"));
+
+    fireEvent.click(screen.getByLabelText("Die Raupe"));
+    fireEvent.click(screen.getByText("Weiter →"));
+    fireEvent.click(screen.getByLabelText("Die Puppe"));
+    fireEvent.click(screen.getByText("Weiter →"));
+
+    const emojiDiv = document.querySelector("[aria-hidden]");
+    expect(emojiDiv?.textContent).toBe("⭐");
+    expect(emojiDiv?.textContent).not.toBe("🦋");
+  });
+
   it("restarts lesson from result screen", () => {
     render(<LessonFlow lesson={schmetterlingsLesson} />);
     // Skip sequence
