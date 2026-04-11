@@ -65,11 +65,11 @@ if $TEST_OK && $BUILD_OK; then
   CF_TOKEN_FILE="$HOME/.config/cloudflare/api-token"
 
   if [[ -f "$BIB_TOKEN_FILE" && -f "$CF_TOKEN_FILE" ]]; then
-    log "[$AGENT_NAME] Production Build mit NEXT_PUBLIC_ACCESS_TOKEN..."
+    log "[$AGENT_NAME] Production Build mit ACCESS_TOKEN..."
     BIB_TOKEN=$(cat "$BIB_TOKEN_FILE")
     CF_TOKEN=$(cat "$CF_TOKEN_FILE")
 
-    if PROD_BUILD_OUTPUT=$(NEXT_PUBLIC_ACCESS_TOKEN="$BIB_TOKEN" pnpm build 2>&1); then
+    if PROD_BUILD_OUTPUT=$(ACCESS_TOKEN="$BIB_TOKEN" pnpm build 2>&1); then
       log "[$AGENT_NAME] Production Build: ✅"
 
       # ── Deploy ──────────────────────────────────────────────────────────────

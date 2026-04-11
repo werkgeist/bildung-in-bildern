@@ -1,10 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import {
   getCookie,
   setCookie,
   deleteCookie,
   normalizeUsername,
-  isValidToken,
 } from "@/lib/auth";
 
 function clearAllCookies() {
@@ -71,37 +70,5 @@ describe("normalizeUsername", () => {
 
   it("returns empty string for empty input", () => {
     expect(normalizeUsername("")).toBe("");
-  });
-});
-
-describe("isValidToken", () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  it("returns true for a matching token", () => {
-    vi.stubEnv("NEXT_PUBLIC_ACCESS_TOKEN", "secret123");
-    expect(isValidToken("secret123")).toBe(true);
-  });
-
-  it("returns false for a wrong token", () => {
-    vi.stubEnv("NEXT_PUBLIC_ACCESS_TOKEN", "secret123");
-    expect(isValidToken("wrong")).toBe(false);
-  });
-
-  it("returns false for null", () => {
-    vi.stubEnv("NEXT_PUBLIC_ACCESS_TOKEN", "secret123");
-    expect(isValidToken(null)).toBe(false);
-  });
-
-  it("returns false when env var is empty string", () => {
-    vi.stubEnv("NEXT_PUBLIC_ACCESS_TOKEN", "");
-    expect(isValidToken("anything")).toBe(false);
-  });
-
-  it("is case-sensitive", () => {
-    vi.stubEnv("NEXT_PUBLIC_ACCESS_TOKEN", "Secret123");
-    expect(isValidToken("secret123")).toBe(false);
-    expect(isValidToken("Secret123")).toBe(true);
   });
 });

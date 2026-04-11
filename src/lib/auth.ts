@@ -1,4 +1,3 @@
-export const TOKEN_COOKIE = "bib-access-token";
 export const USERNAME_COOKIE = "bib-username";
 
 export function getCookie(name: string): string | null {
@@ -26,20 +25,6 @@ export function deleteCookie(name: string): void {
 
 export function normalizeUsername(name: string): string {
   return name.trim().replace(/\s+/g, " ");
-}
-
-export function isValidToken(token: string | null): boolean {
-  const expected = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
-  if (!expected || !token) return false;
-  return token === expected;
-}
-
-export function getStoredToken(): string | null {
-  return getCookie(TOKEN_COOKIE);
-}
-
-export function storeToken(token: string): void {
-  setCookie(TOKEN_COOKIE, token, 30);
 }
 
 export function getStoredUsername(): string | null {
