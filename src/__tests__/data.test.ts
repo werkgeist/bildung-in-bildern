@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { schmetterlingsLesson } from "@/data/schmetterling";
 import { wasserkreislaufLesson } from "@/data/wasserkreislauf";
+import { lebensphasenLesson } from "@/data/lebensphasen";
 
 describe("Lesson data validation", () => {
   it("has required top-level fields", () => {
@@ -138,5 +139,31 @@ describe("Wasserkreislauf lesson data", () => {
   it("lesson text is in German", () => {
     expect(wasserkreislaufLesson.title).toMatch(/Wasserkreislauf/);
     expect(wasserkreislaufLesson.sequence[0].label).toBe("Verdunstung");
+  });
+});
+
+// ─── Regression: Issue #50 + #46 ─────────────────────────────
+describe("Lebensphasen lesson — scope and label regression (#46, #50)", () => {
+  it("has id lebensphasen-einfach", () => {
+    expect(lebensphasenLesson.id).toBe("lebensphasen-einfach");
+  });
+
+  it("has exactly 5 sequence steps", () => {
+    expect(lebensphasenLesson.sequence).toHaveLength(5);
+  });
+
+  it("step 4 label is Ausbildung, not Junger Erwachsener (#46)", () => {
+    const step4 = lebensphasenLesson.sequence[3];
+    expect(step4.label).toBe("Ausbildung");
+  });
+
+  it("description mentions Baby and Arbeit (scope matches content)", () => {
+    expect(lebensphasenLesson.description).toMatch(/Baby/);
+    expect(lebensphasenLesson.description).toMatch(/Arbeit/);
+  });
+
+  it("step labels match expected growing-up sequence", () => {
+    const labels = lebensphasenLesson.sequence.map((s) => s.label);
+    expect(labels).toEqual(["Baby", "Kleinkind", "Kind", "Ausbildung", "Arbeit"]);
   });
 });
