@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import AuthGate from "@/components/AuthGate";
 import DryrunBanner from "@/components/DryrunBanner";
 
 const geistSans = Geist({
@@ -31,7 +30,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
           <DryrunBanner />
-          <AuthGate>{children}</AuthGate>
+          {children}
         </body>
     </html>
   );
