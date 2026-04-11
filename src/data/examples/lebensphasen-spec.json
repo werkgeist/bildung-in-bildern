@@ -7,7 +7,7 @@
   "subject": "daily-life",
   "difficulty": 1,
   "learningGoals": [
-    "Die fünf Lebensphasen in der richtigen Reihenfolge zeigen können",
+    "Die fünf Phasen des Aufwachsens in der richtigen Reihenfolge zeigen können",
     "Erkennen, in welcher Phase man gerade selbst ist"
   ],
   "prerequisites": [
@@ -64,7 +64,7 @@
     {
       "id": "lebensphasen-einfach-step-4",
       "order": 4,
-      "label": "Junger Erwachsener",
+      "label": "Ausbildung",
       "alt": "Ein junger Erwachsener in Arbeitskleidung lernt einen Beruf",
       "concept": "Als junger Erwachsener macht man eine Ausbildung und lernt einen Beruf",
       "conceptTags": ["ausbildung", "beruf", "erwachsen"],
