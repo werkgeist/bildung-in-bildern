@@ -10,13 +10,17 @@ import { useHaptic } from "@/hooks/useHaptic";
 /** Deterministic shuffle seeded by question id — stable across re-renders. */
 function shuffleOptions<T>(items: T[], seed: string): T[] {
   const arr = [...items];
-  let h = 0;
+  // xmur3-inspired hash: feed each char, then squeeze values per swap step
+  let h = 1779033703;
   for (let i = 0; i < seed.length; i++) {
-    h = (h * 31 + seed.charCodeAt(i)) | 0;
+    h = Math.imul(h ^ seed.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
   }
   for (let i = arr.length - 1; i > 0; i--) {
-    h = (h * 1103515245 + 12345) | 0;
-    const j = ((h >>> 0) % (i + 1));
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    h = (h ^ (h >>> 16)) >>> 0;
+    const j = h % (i + 1);
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
@@ -36,10 +40,12 @@ export default function Quiz({ questions, onComplete, lessonId, onQuestionAnswer
   const [score, setScore] = useState(0);
   const startTimeRef = useRef<number>(Date.now());
   const haptic = useHaptic();
+  // Session seed changes each mount → different shuffle order per visit
+  const sessionSeed = useRef(String(Date.now()));
 
   const question = questions[currentIndex];
   const shuffledOptions = useMemo(
-    () => shuffleOptions(question.options, question.id),
+    () => shuffleOptions(question.options, question.id + sessionSeed.current),
     [question.id, question.options]
   );
 
