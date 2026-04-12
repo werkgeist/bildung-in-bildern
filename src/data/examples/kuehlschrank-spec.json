@@ -1,0 +1,171 @@
+{
+  "id": "kuehlschrank-einfach",
+  "version": 2,
+  "locale": "de",
+  "title": "Der Kühlschrank",
+  "description": "Du lernst, wie ein Kühlschrank funktioniert — warum Essen darin kalt wird.",
+  "subject": "daily-life",
+  "difficulty": 1,
+  "learningGoals": [
+    "Verstehen, dass der Motor hinten die Kälte macht",
+    "Wissen, dass Essen im Kühlschrank kalt und frisch bleibt"
+  ],
+  "prerequisites": [
+    "Kennt: Kühlschrank, kalt, warm, Essen"
+  ],
+  "steps": [
+    {
+      "id": "kuehlschrank-einfach-step-1",
+      "order": 1,
+      "label": "Essen rein",
+      "alt": "Eine Hand stellt einen Teller mit Essen in einen offenen Kühlschrank",
+      "concept": "Du stellst Essen in den Kühlschrank — es ist noch warm",
+      "conceptTags": ["essen", "warm", "reinstellen"],
+      "mustInclude": ["Offener Kühlschrank mit Regalen", "Teller mit Essen wird hineingestellt", "Kleine Wärme-Wellenlinien über dem Essen"],
+      "mustAvoid": ["Text", "Buchstaben", "Zahlen", "realistische Gesichter", "detaillierte Gesichtszüge"],
+      "composition": "zentriert, Kühlschrank rechts offen",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "large"
+    },
+    {
+      "id": "kuehlschrank-einfach-step-2",
+      "order": 2,
+      "label": "Tür zu",
+      "alt": "Der Kühlschrank ist geschlossen, die Tür ist zu",
+      "concept": "Die Tür geht zu — die Kälte bleibt drin",
+      "conceptTags": ["tür", "geschlossen", "dicht"],
+      "mustInclude": ["Geschlossener Kühlschrank von vorne", "Kühlschrank-Griff sichtbar", "Kleine Schneeflocken-Icons oder Kälte-Symbole um den Kühlschrank"],
+      "mustAvoid": ["Text", "Buchstaben", "Zahlen", "offene Tür", "Essen sichtbar", "realistische Gesichter"],
+      "composition": "zentriert",
+      "transitionType": "action-to-action",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "medium"
+    },
+    {
+      "id": "kuehlschrank-einfach-step-3",
+      "order": 3,
+      "label": "Der Motor",
+      "alt": "Die Rückseite des Kühlschranks mit einem brummenden Motor und Kühlleitungen",
+      "concept": "Hinten am Kühlschrank ist ein Motor — er macht die Kälte",
+      "conceptTags": ["motor", "kompressor", "kühlen"],
+      "mustInclude": ["Rückseite eines Kühlschranks", "Sichtbarer Motor oder runder Kompressor unten", "Leitungen oder Röhren", "Brumm-Wellenlinien um den Motor"],
+      "mustAvoid": ["Text", "Buchstaben", "Zahlen", "Vorderseite", "offene Tür", "Essen", "realistische Gesichter"],
+      "composition": "zentriert, Rückansicht",
+      "transitionType": "subject-to-subject",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "large"
+    },
+    {
+      "id": "kuehlschrank-einfach-step-4",
+      "order": 4,
+      "label": "Kälte innen",
+      "alt": "Blick in den offenen Kühlschrank, kalte blaue Luft strömt um die Regale",
+      "concept": "Innen wird es kalt — kalte Luft strömt überall hin",
+      "conceptTags": ["kälte", "luft", "innen"],
+      "mustInclude": ["Offener Kühlschrank von vorne", "Blaue Kälte-Wellen oder kalte Luft sichtbar", "Regale mit Lebensmitteln", "Schneeflocken oder Eiskristalle in der Luft"],
+      "mustAvoid": ["Text", "Buchstaben", "Zahlen", "Wärme-Symbole", "realistische Gesichter"],
+      "composition": "zentriert, Blick in den Kühlschrank",
+      "transitionType": "action-to-action",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "interdependent",
+      "panelSize": "medium"
+    },
+    {
+      "id": "kuehlschrank-einfach-step-5",
+      "order": 5,
+      "label": "Essen ist kalt",
+      "alt": "Eine Hand nimmt einen Teller mit kaltem Essen aus dem Kühlschrank, Frische-Symbole",
+      "concept": "Das Essen ist jetzt kalt und frisch — fertig!",
+      "conceptTags": ["kalt", "frisch", "fertig"],
+      "mustInclude": ["Hand nimmt Teller aus offenem Kühlschrank", "Essen auf dem Teller", "Frische-Symbole: Schneeflocke oder blaue Sterne", "Zufriedene, freundliche Stimmung"],
+      "mustAvoid": ["Text", "Buchstaben", "Zahlen", "Wärme-Wellenlinien", "realistische Gesichter"],
+      "composition": "zentriert, Kühlschrank rechts offen",
+      "transitionType": "action-to-action",
+      "shotType": "medium",
+      "cameraAngle": "eye-level",
+      "wordPictureRelation": "additive",
+      "panelSize": "large"
+    }
+  ],
+  "questions": [
+    {
+      "id": "kuehlschrank-einfach-q-1",
+      "type": "mc-image",
+      "testsConcepts": ["motor", "kompressor", "kühlen"],
+      "questionText": "Was macht den Kühlschrank kalt?",
+      "options": [
+        {
+          "id": "kuehlschrank-einfach-q-1-opt-1",
+          "label": "Der Motor hinten am Kühlschrank",
+          "stepRef": "kuehlschrank-einfach-step-3",
+          "isCorrect": true
+        },
+        {
+          "id": "kuehlschrank-einfach-q-1-opt-2",
+          "label": "Essen wird in den Kühlschrank gestellt",
+          "stepRef": "kuehlschrank-einfach-step-1",
+          "isCorrect": false,
+          "distractorReason": "Das Reinstellen macht den Kühlschrank nicht kalt — das macht der Motor"
+        },
+        {
+          "id": "kuehlschrank-einfach-q-1-opt-3",
+          "label": "Die Tür wird geschlossen",
+          "stepRef": "kuehlschrank-einfach-step-2",
+          "isCorrect": false,
+          "distractorReason": "Die Tür hält die Kälte drin, aber sie erzeugt sie nicht"
+        }
+      ],
+      "hint": "Schau dir das Bild von hinten an — dort brummt etwas",
+      "difficulty": 1
+    },
+    {
+      "id": "kuehlschrank-einfach-q-2",
+      "type": "mc-image",
+      "testsConcepts": ["kalt", "frisch", "fertig"],
+      "questionText": "Was passiert mit dem Essen im Kühlschrank?",
+      "options": [
+        {
+          "id": "kuehlschrank-einfach-q-2-opt-1",
+          "label": "Das Essen wird kalt und frisch",
+          "stepRef": "kuehlschrank-einfach-step-5",
+          "isCorrect": true
+        },
+        {
+          "id": "kuehlschrank-einfach-q-2-opt-2",
+          "label": "Der Motor brummt hinten",
+          "stepRef": "kuehlschrank-einfach-step-3",
+          "isCorrect": false,
+          "distractorReason": "Der Motor arbeitet, aber die Frage ist was mit dem Essen passiert"
+        },
+        {
+          "id": "kuehlschrank-einfach-q-2-opt-3",
+          "label": "Kalte blaue Luft strömt im Kühlschrank",
+          "stepRef": "kuehlschrank-einfach-step-4",
+          "isCorrect": false,
+          "distractorReason": "Die kalte Luft ist der Weg, nicht das Ergebnis für das Essen"
+        }
+      ],
+      "hint": "Am Ende ist das Essen kalt — schau dir das letzte Bild an",
+      "difficulty": 1
+    }
+  ],
+  "style": {
+    "artStyle": "flat-vector",
+    "background": "white",
+    "colorPalette": ["#56CCF2", "#2D9CDB", "#FFFFFF", "#E0E0E0", "#6FCF97", "#F2C94C"],
+    "negativePrompt": "text, letters, numbers, photorealistic, realistic faces, detailed facial features, complex backgrounds, dark colors, scary elements, words",
+    "presetName": "kyrill-friendly",
+    "characterDNA": "Kühlschrank als freundlicher weißer Kasten mit abgerundeten Ecken, silberner Griff. Essen als bunte einfache Formen (Apfel, Teller, Flasche). Motor als runder grauer Kasten mit Leitungen. Hände als einfache stilisierte Formen ohne Details.",
+    "styleBible": "Flat-vector, soft gradients, warm pastels on white background; friendly and calm, no sharp edges or dark colors; simple rounded shapes, minimal outlines",
+    "spatialRules": {
+      "maintainLR": true
+    }
+  }
+}
