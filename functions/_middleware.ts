@@ -5,7 +5,7 @@ interface Env {
 const COOKIE_NAME = "bib-access-token";
 const COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days
 
-const SKIP_PREFIXES = ["/api/", "/dashboard"];
+const SKIP_PREFIXES = ["/api/", "/dashboard", "/admin"];
 
 function shouldSkip(pathname: string): boolean {
   return SKIP_PREFIXES.some((p) => pathname.startsWith(p));
