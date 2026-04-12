@@ -1,11 +1,26 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import type { QuizQuestion } from "@/types/lesson";
 import { logAnswer } from "@/lib/logging";
 import { trackEvent } from "@/lib/analytics";
 import { useHaptic } from "@/hooks/useHaptic";
+
+/** Deterministic shuffle seeded by question id — stable across re-renders. */
+function shuffleOptions<T>(items: T[], seed: string): T[] {
+  const arr = [...items];
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (h * 31 + seed.charCodeAt(i)) | 0;
+  }
+  for (let i = arr.length - 1; i > 0; i--) {
+    h = (h * 1103515245 + 12345) | 0;
+    const j = ((h >>> 0) % (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
 interface QuizProps {
   questions: QuizQuestion[];
@@ -23,6 +38,10 @@ export default function Quiz({ questions, onComplete, lessonId, onQuestionAnswer
   const haptic = useHaptic();
 
   const question = questions[currentIndex];
+  const shuffledOptions = useMemo(
+    () => shuffleOptions(question.options, question.id),
+    [question.id, question.options]
+  );
 
   useEffect(() => {
     startTimeRef.current = Date.now();
@@ -90,7 +109,7 @@ export default function Quiz({ questions, onComplete, lessonId, onQuestionAnswer
       </h2>
 
       <div className="grid grid-cols-3 gap-3 w-full">
-        {question.options.map((option) => {
+        {shuffledOptions.map((option) => {
           const isSelected = selected === option.id;
           const isThisCorrect = option.id === question.correctOptionId;
           const showFeedback = selected !== null;
