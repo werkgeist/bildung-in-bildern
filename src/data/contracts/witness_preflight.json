@@ -1,0 +1,9 @@
+{
+  "description": "Witness preflight gate — all listed cases must pass before deploy.",
+  "requiredCases": [
+    "temperatur-einfach-q-1"
+  ],
+  "casePaths": {
+    "temperatur-einfach-q-1": "./temperatur-einfach-q-1.witness_case.json"
+  }
+}

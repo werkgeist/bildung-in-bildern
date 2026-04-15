@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../witness_case.schema.json",
+  "caseId": "temperatur-einfach-q-1",
+  "contractVersion": 1,
+  "contract": {
+    "itemId": "temperatur-einfach-q-1",
+    "stimulus": "Welches Bild zeigt warm?",
+    "correctStepRef": "temperatur-einfach-step-3",
+    "optionStepRefs": [
+      "temperatur-einfach-step-3",
+      "temperatur-einfach-step-1",
+      "temperatur-einfach-step-2"
+    ]
+  },
+  "witnesses": [
+    {
+      "name": "witness-a (correct@0)",
+      "questionText": "Welches Bild zeigt warm?",
+      "optionStepRefs": [
+        "temperatur-einfach-step-3",
+        "temperatur-einfach-step-1",
+        "temperatur-einfach-step-2"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "name": "witness-b (correct@2)",
+      "questionText": "Welches Bild zeigt warm?",
+      "optionStepRefs": [
+        "temperatur-einfach-step-1",
+        "temperatur-einfach-step-2",
+        "temperatur-einfach-step-3"
+      ],
+      "correctIndex": 2
+    }
+  ]
+}
