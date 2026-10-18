@@ -104,6 +104,31 @@ export default function Home() {
           </div>
         ))}
       </div>
+
+      <section aria-labelledby="experiments-title" className="w-full max-w-2xl mt-12">
+        <h2 id="experiments-title" className="text-2xl font-semibold text-teal-900 mb-4">Ausprobieren</h2>
+        <Link
+          href="/ausprobieren/waschbecken/"
+          aria-label="Waschbecken ausprobieren"
+          className="flex flex-col sm:flex-row items-center gap-5 rounded-2xl border-2 border-teal-200 bg-[#f3f5ec] p-5 text-teal-950 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-teal-800 hover:border-teal-700"
+        >
+          <svg width="160" height="120" viewBox="0 0 160 120" fill="none" aria-hidden="true" className="shrink-0">
+            <path d="M43 43V24Q43 14 55 14H66Q78 14 78 28V35" stroke="#8caaa0" strokeWidth="9" />
+            <path d="M43 26H30" stroke="#587f70" strokeWidth="6" strokeLinecap="round" />
+            <path d="M78 36V73" stroke="#65bbb8" strokeWidth="6" />
+            <path d="M18 51H142L132 90Q129 105 113 105H47Q31 105 28 90Z" fill="#fcfcf4" stroke="#8aa394" strokeWidth="3" />
+            <path d="M29 73H131L126 90Q122 98 113 98H47Q37 98 34 90Z" fill="#57aba9" />
+            <path d="M27 72H133" stroke="#248183" strokeWidth="2" />
+            <path d="M73 101H87" stroke="#476b5a" strokeWidth="5" strokeLinecap="round" />
+            <path d="M80 106V118" stroke="#8aa394" strokeWidth="9" />
+          </svg>
+          <div className="flex-1">
+            <h3 className="text-xl font-semibold mb-1">Das Waschbecken</h3>
+            <p className="text-base text-teal-900">Hahn und Stöpsel selbst bedienen.</p>
+          </div>
+          <span aria-hidden="true" className="text-2xl">→</span>
+        </Link>
+      </section>
     </main>
   );
 }
